@@ -10,7 +10,7 @@ Dua bahasa (English default + Indonesia) · Stok multi-satuan · HPP per satuan 
 
 [![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)](#)
 [![Target SDK](https://img.shields.io/badge/targetSdk-36%20(Android%2016)-blue)](#)
-[![Versi](https://img.shields.io/badge/versi-1.1.0%20(build%203)-orange)](#)
+[![Versi](https://img.shields.io/badge/versi-1.1.1%20(build%204)-orange)](#)
 [![Offline](https://img.shields.io/badge/100%25-offline-success)](#)
 
 </div>
@@ -53,7 +53,7 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 | --- | --- |
 | **Nama aplikasi** | Kokoh App Bangunan |
 | **Package / applicationId** | `id.aksisoft.kokoh` |
-| **Versi** | `1.1.0` (versionCode `3`) |
+| **Versi** | `1.1.1` (versionCode `4`) |
 | **minSdk** | 24 — Android 7.0 Nougat |
 | **targetSdk / compileSdk** | 36 — Android 16 |
 | **Ukuran terpasang** | ± 5,8 MB (APK universal) |
@@ -156,7 +156,12 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 | :---: | :---: | :---: |
 | ![Shift](docs/screenshots/shift.webp) | ![Laporan](docs/screenshots/reports.webp) | ![Surat Jalan](docs/screenshots/delivery.webp) |
 
-<div align="center"><img src="docs/screenshots/settings.webp" width="260" alt="Pengaturan" /></div>
+| Pengaturan | Database |
+| :---: | :---: |
+| ![Pengaturan](docs/screenshots/settings.webp) | ![Database](docs/screenshots/databases.webp) |
+
+> Tangkapan layar memakai UI **English (default)**. Pilih
+> *Bahasa Indonesia* untuk antarmuka berbahasa Indonesia.
 
 ---
 
@@ -294,7 +299,7 @@ Verifikasi tanda tangan:
 & "$env:JAVA_HOME\bin\java.exe" -jar "$env:ANDROID_HOME\build-tools\36.0.0\lib\apksigner.jar" `
   verify --verbose --print-certs android\app\build\outputs\apk\release\app-release.apk
 
-& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.1.0-release.aab
+& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.1.1-release.aab
 ```
 
 ### 7.4 Naikkan versi setiap rilis
@@ -302,8 +307,8 @@ Verifikasi tanda tangan:
 `android/app/build.gradle`:
 
 ```gradle
-versionCode 3          // WAJIB naik setiap upload ke Play (tidak boleh sama/mundur)
-versionName "1.0.2"
+versionCode 5          // WAJIB naik setiap upload ke Play (tidak boleh sama/mundur)
+versionName "1.1.2"
 ```
 
 ### 7.5 Ikon & splash
@@ -323,7 +328,7 @@ Panduan lengkap (keystore, Play Console, kebijakan target API 36):
 ```
 apk-sistemkasir-bangunan/
 ├── README.md                  # dokumen ini
-├── RELEASE.md                 # catatan rilis 1.1.0 (hash, sertifikat, ukuran)
+├── RELEASE.md                 # catatan rilis 1.1.1 (hash, sertifikat, ukuran)
 ├── package.json
 ├── vite.config.ts             # base './' agar aman di WebView
 ├── capacitor.config.ts        # appId id.aksisoft.kokoh, webDir dist
@@ -355,8 +360,8 @@ apk-sistemkasir-bangunan/
 │   └── gen-screenshots.cjs    # kompres tangkapan layar jadi WebP
 │
 ├── release/                   # artefak siap edar
-│   ├── KokohAppBangunan-1.1.0-release.aab
-│   └── KokohAppBangunan-1.1.0-release.apk
+│   ├── KokohAppBangunan-1.1.1-release.aab
+│   └── KokohAppBangunan-1.1.1-release.apk
 │
 ├── src/
 │   ├── main.tsx               # entry React
@@ -611,12 +616,12 @@ npm run lint    # oxlint
 
 ## 16. Rilis & Lisensi
 
-**Artefak rilis 1.1.0**
+**Artefak rilis 1.1.1**
 
 | File | Ukuran | SHA-256 |
 | --- | --- | --- |
-| `release/KokohAppBangunan-1.1.0-release.aab` | 5,5 MB | `C07F83612E412673ED911DF9FD04CA70D89ED1EC98104B31D627ED82920DD687` |
-| `release/KokohAppBangunan-1.1.0-release.apk` | 5,7 MB | `BE7FBF9335243C1955901588F14833FE0056171578512B2FF367450A98F163EC` |
+| `release/KokohAppBangunan-1.1.1-release.aab` | 5,5 MB | `B3763FA15918E2FC9492E3362BA246F315469811C4573BC7635D2B98EF407CD5` |
+| `release/KokohAppBangunan-1.1.1-release.apk` | 5,7 MB | `3138015C779772F70D5FC55A3507E9070AB43704A5AE3161268EEB143E7A8CD8` |
 
 - Ditandatangani `CN=DoniMuslimin, OU=TukangDigital, O=TukangDigital` (RSA, berlaku s/d 2044).
 - Detail sertifikat, hash, dan langkah rilis: **[RELEASE.md](RELEASE.md)**.

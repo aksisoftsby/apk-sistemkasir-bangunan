@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoreProfile, getSetting, setSetting } from '../../lib/repo';
 import { getLang, setLang, t, useLang } from '../../lib/locale';
+import { APP_VERSION } from '../../lib/appversion';
 import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { AppBar, ConfirmDialog, Switch } from '../../components/ui';
@@ -131,7 +132,7 @@ export default function SettingsScreen() {
           </div>
 
           <div className="list mt-3">
-            <Row icon={<span style={{ fontSize: 18 }}>ℹ️</span>} title={t('set.about')} subtitle={t('set.version')} onClick={() => setAboutOpen(true)} />
+            <Row icon={<span style={{ fontSize: 18 }}>ℹ️</span>} title={t('set.about')} subtitle={t('set.version', { v: APP_VERSION })} onClick={() => setAboutOpen(true)} />
             <Row
               icon={<IconLogout size={20} />}
               title={t('set.logout')}
@@ -139,7 +140,7 @@ export default function SettingsScreen() {
             />
           </div>
 
-          <div className="small muted center-text mt-4">{t('set.footer')}</div>
+          <div className="small muted center-text mt-4">{t('set.footer', { v: APP_VERSION })}</div>
         </div>
       </div>
 
@@ -159,7 +160,7 @@ export default function SettingsScreen() {
       <ConfirmDialog
         open={aboutOpen}
         title={t('set.about')}
-        message={t('set.aboutMsg')}
+        message={t('set.aboutMsg', { v: APP_VERSION })}
         confirmLabel={t('app.close')}
         onConfirm={() => setAboutOpen(false)}
         onClose={() => setAboutOpen(false)}

@@ -2,24 +2,25 @@
 const fs = require('fs');
 const sharp = require('sharp');
 
-const T = 'C:/Users/USER/AppData/Local/Temp/opencode';
+const T = 'C:/Users/USER/AppData/Local/Temp/opencode/kokoh-shots';
 const OUT = 'docs/screenshots';
 fs.mkdirSync(OUT, { recursive: true });
 
 const picks = [
-  ['pos', `${T}/kokoh-test/04-pos.png`],
-  ['cart', `${T}/kokoh-test/07-cart-footer.png`],
-  ['payment', `${T}/kokoh-test2/16-payment-tempo.png`],
-  ['success', `${T}/kokoh-test/09-success.png`],
-  ['detail', `${T}/kokoh-test/10-detail.png`],
-  ['products', `${T}/kokoh-test5/02-products.png`],
-  ['stock', `${T}/kokoh-test2/05-stock.png`],
-  ['customers', `${T}/kokoh-test2/18-piutang.png`],
-  ['purchase', `${T}/kokoh-test2/12-purchase-list.png`],
-  ['shift', `${T}/kokoh-test2/09-shift-open.png`],
-  ['reports', `${T}/kokoh-test5/04-reports.png`],
-  ['delivery', `${T}/kokoh-test5/01-delivery.png`],
-  ['settings', `${T}/kokoh-test2/12-settings.png`],
+  ['pos', `${T}/pos.png`],
+  ['cart', `${T}/cart.png`],
+  ['payment', `${T}/payment.png`],
+  ['success', `${T}/success.png`],
+  ['detail', `${T}/detail.png`],
+  ['products', `${T}/products.png`],
+  ['stock', `${T}/stock.png`],
+  ['customers', `${T}/customers.png`],
+  ['purchase', `${T}/purchase.png`],
+  ['shift', `${T}/shift.png`],
+  ['reports', `${T}/reports.png`],
+  ['delivery', `${T}/delivery.png`],
+  ['settings', `${T}/settings.png`],
+  ['databases', `${T}/databases.png`],
 ];
 
 (async () => {
