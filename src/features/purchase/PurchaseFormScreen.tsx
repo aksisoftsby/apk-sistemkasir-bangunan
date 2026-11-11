@@ -8,6 +8,7 @@ import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, EmptyState, Field, NumberSheet } from '../../components/ui';
 import { IconMinus, IconSearch, IconTrash } from '../../components/icons';
 import type { ProductView } from '../../lib/types';
+import { t, useLang } from '../../lib/locale';
 
 interface ItemRow {
   key: string;
@@ -22,6 +23,7 @@ interface ItemRow {
 }
 
 export default function PurchaseFormScreen() {
+  useLang();
   const ver = useDbVersion();
   const nav = useNavigate();
   const user = useSession((s) => s.user);
@@ -46,7 +48,7 @@ export default function PurchaseFormScreen() {
     const units = getProductUnits(p.id);
     const unit = units.find((u) => u.is_default_beli) ?? units[0];
     if (!unit) {
-      toast.danger('Produk belum punya satuan');
+      toast.danger(t('po.noUnit'));
       return;
     }
     const key = unit.id + '-' + Date.now();
@@ -74,11 +76,11 @@ export default function PurchaseFormScreen() {
 
   function simpan() {
     if (items.length === 0) {
-      toast.danger('Tambahkan minimal satu barang');
+      toast.danger(t('po.addMin'));
       return;
     }
     if (!supplierId) {
-      toast.danger('Pilih supplier');
+      toast.danger(t('po.pickSupplier'));
       return;
     }
     setSaving(true);
@@ -101,10 +103,10 @@ export default function PurchaseFormScreen() {
         },
         user?.id ?? '',
       );
-      toast.success('Pembelian tersimpan, stok bertambah');
+      toast.success(t('po.saved'));
       nav('/purchase', { replace: true });
     } catch (e) {
-      toast.danger('Gagal menyimpan: ' + String(e));
+      toast.danger(t('common.failedSave') + String(e));
     } finally {
       setSaving(false);
     }
@@ -114,14 +116,14 @@ export default function PurchaseFormScreen() {
 
   return (
     <div className="screen">
-      <AppBar title="Pembelian Baru" subtitle="Barang masuk dari supplier" />
+      <AppBar title={t('po.new')} subtitle={t('po.newSub')} />
       <div className="screen-body">
         <div className="page" style={{ paddingBottom: 220 }}>
           <div className="card">
-            <Field label="Supplier">
+            <Field label={t('po.supplier')}>
               <div className="select-wrap">
                 <select className="select" value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
-                  <option value="">Pilih supplier…</option>
+                  <option value="">{t('po.pickSupplier')}</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>{s.nama}</option>
                   ))}
@@ -129,14 +131,14 @@ export default function PurchaseFormScreen() {
               </div>
             </Field>
             <button className="btn btn-block mt-2" onClick={() => setPickerOpen(true)}>
-              <IconSearch size={18} /> Pilih Barang
+              <IconSearch size={18} /> {t('po.pickItems')}
             </button>
           </div>
 
           <div className="card">
-            <div className="card-title">Daftar Barang</div>
+            <div className="card-title">{t('po.itemList')}</div>
             {items.length === 0 ? (
-              <div className="small muted">Belum ada barang. Tekan “Pilih Barang”.</div>
+              <div className="small muted">{t('po.noItems')}</div>
             ) : (
               <div className="col">
                 {items.map((it) => (
@@ -160,7 +162,7 @@ export default function PurchaseFormScreen() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div className="money money-sm">{'Rp ' + formatNumber(it.qty * it.harga_satuan)}</div>
-                      <button className="text-btn text-btn-danger" onClick={() => setItems((rows) => rows.filter((r) => r.key !== it.key))} aria-label="Hapus">
+                      <button className="text-btn text-btn-danger" onClick={() => setItems((rows) => rows.filter((r) => r.key !== it.key))} aria-label={t('common.delete')}>
                         <IconTrash size={16} />
                       </button>
                     </div>
@@ -172,25 +174,25 @@ export default function PurchaseFormScreen() {
 
           <div className="card">
             <div className="row-between">
-              <span className="strong">Total Pembelian</span>
+              <span className="strong">{t('po.total')}</span>
               <span className="money money-lg">{'Rp ' + formatNumber(total)}</span>
             </div>
             <div className="divider" />
             <div className="row-between small">
-              <span className="muted">Dibayar sekarang</span>
-              <button className="text-btn" onClick={() => setEditBayar(true)}>Ubah</button>
+              <span className="muted">{t('po.paidNow')}</span>
+              <button className="text-btn" onClick={() => setEditBayar(true)}>{t('common.change')}</button>
             </div>
             <div className="money money-md mt-1">{'Rp ' + formatNumber(Math.min(dibayar, total))}</div>
             <div className="row wrap mt-2" style={{ gap: 8 }}>
-              <button className="chip" onClick={() => setDibayar(total)}>Lunas</button>
-              <button className="chip" onClick={() => setDibayar(0)}>Hutang semua</button>
-              <button className="chip" onClick={() => setDibayar(Math.round(total / 2))}>Setengah</button>
+              <button className="chip" onClick={() => setDibayar(total)}>{t('po.paidFull')}</button>
+              <button className="chip" onClick={() => setDibayar(0)}>{t('po.allDebt')}</button>
+              <button className="chip" onClick={() => setDibayar(Math.round(total / 2))}>{t('po.half')}</button>
             </div>
             {sisa > 0 ? (
               <>
                 <div className="divider" />
                 <div className="row-between">
-                  <span className="strong" style={{ color: 'var(--danger)' }}>Sisa hutang</span>
+                  <span className="strong" style={{ color: 'var(--danger)' }}>{t('po.debtLeft')}</span>
                   <span className="money money-md money-danger">{'Rp ' + formatNumber(sisa)}</span>
                 </div>
                 <div className="row wrap mt-2" style={{ gap: 8 }}>
@@ -208,23 +210,23 @@ export default function PurchaseFormScreen() {
 
       <div className="sticky-footer">
         <button className="btn btn-primary btn-lg btn-block" onClick={simpan} disabled={saving}>
-          {saving ? 'Menyimpan…' : 'Simpan Pembelian'}
+          {saving ? t('po.saving') : t('po.savePurchase')}
         </button>
       </div>
 
-      <BottomSheet open={pickerOpen} onClose={() => setPickerOpen(false)} title="Pilih Barang">
+      <BottomSheet open={pickerOpen} onClose={() => setPickerOpen(false)} title={t('po.pickItems')}>
         <div className="search-wrap mb-3">
           <IconSearch size={18} className="search-icon" />
           <input
             className="search-input"
-            placeholder="Cari nama / SKU produk…"
+            placeholder={t('po.searchPh')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             autoFocus
           />
         </div>
         {products.length === 0 ? (
-          <EmptyState title="Produk tidak ditemukan" message="Tambahkan produk terlebih dahulu di menu Produk." />
+          <EmptyState title={t('prod.empty')} message={t('po.addProductFirst')} />
         ) : (
           <div className="list">
             {products.map((p) => (
@@ -244,7 +246,7 @@ export default function PurchaseFormScreen() {
 
       <NumberSheet
         open={!!editQty}
-        title="Jumlah Beli"
+        title={t('po.qtyBuy')}
         value={editRow?.qty ?? 0}
         allowDecimal
         onClose={() => setEditQty(null)}
@@ -255,7 +257,7 @@ export default function PurchaseFormScreen() {
       />
       <NumberSheet
         open={!!editHarga}
-        title="Harga Beli Satuan"
+        title={t('po.unitCost')}
         value={editRow?.harga_satuan ?? 0}
         prefix="Rp"
         onClose={() => setEditHarga(null)}
@@ -266,7 +268,7 @@ export default function PurchaseFormScreen() {
       />
       <NumberSheet
         open={editBayar}
-        title="Dibayar Sekarang"
+        title={t('po.paidNowTitle')}
         value={dibayar}
         prefix="Rp"
         quickAmounts={[100000, 500000, 1000000, 5000000]}

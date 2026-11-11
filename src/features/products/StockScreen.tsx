@@ -8,8 +8,10 @@ import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, EmptyState, Segmented } from '../../components/ui';
 import { IconSearch } from '../../components/icons';
 import { IconPlus } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 
 export default function StockScreen() {
+  useLang();
   const ver = useDbVersion();
   const user = useSession((s) => s.user);
   const [tab, setTab] = useState<'ALL' | 'LOW'>('ALL');
@@ -32,7 +34,7 @@ export default function StockScreen() {
     if (!prod) return;
     const qty = parseQtyInput(qtyText);
     if (qty <= 0) {
-      toast.danger('Jumlah harus lebih dari 0');
+      toast.danger(t('st.qtyMin'));
       return;
     }
     const base = units.find((u) => u.is_default_beli) ?? units[0];
@@ -46,11 +48,11 @@ export default function StockScreen() {
       prod.hpp,
       'ADJUST',
       prod.id,
-      catatan || (tipe === 'OPNAME' ? 'Stok opname' : 'Penyesuaian stok'),
+      catatan || (tipe === 'OPNAME' ? t('st.opnameDefault') : t('st.adjustDefault')),
       user?.id ?? '',
     );
     notifyChange();
-    toast.success('Stok diperbarui');
+    toast.success(t('st.updated'));
     setQtyText('');
     setCatatan('');
     setSelected(null);
@@ -60,17 +62,17 @@ export default function StockScreen() {
 
   return (
     <div className="screen">
-      <AppBar title="Stok" subtitle={`${formatNumber(nilai.item_count)} produk · Nilai Rp ${formatNumber(Math.round(nilai.total_nilai))}`} />
+      <AppBar title={t('st.title')} subtitle={t('st.subtitle', { n: nilai.item_count, v: formatNumber(Math.round(nilai.total_nilai)) })} />
       <div className="screen-body">
         <div className="page">
           <div className="kpi-grid">
             <div className="kpi">
-              <div className="kpi-label">Nilai Stok</div>
+              <div className="kpi-label">{t('st.value')}</div>
               <div className="kpi-value">Rp {formatNumber(Math.round(nilai.total_nilai))}</div>
             </div>
             <div className="kpi">
-              <div className="kpi-label">Stok Menipis</div>
-              <div className="kpi-value" style={{ color: low.length ? 'var(--danger)' : 'var(--success)' }}>{low.length} produk</div>
+              <div className="kpi-label">{t('st.low')}</div>
+              <div className="kpi-value" style={{ color: low.length ? 'var(--danger)' : 'var(--success)' }}>{low.length} {t('prod.low')}</div>
             </div>
           </div>
 
@@ -79,19 +81,19 @@ export default function StockScreen() {
               value={tab}
               onChange={setTab}
               options={[
-                { value: 'ALL', label: 'Semua Produk' },
-                { value: 'LOW', label: `Menipis (${low.length})` },
+                { value: 'ALL', label: t('st.allProducts') },
+                { value: 'LOW', label: t('st.lowTab', { n: low.length }) },
               ]}
             />
           </div>
 
           <div className="search-wrap mt-3">
             <IconSearch size={18} className="search-icon" />
-            <input className="search-input" placeholder="Cari produk…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input className="search-input" placeholder={t('st.searchPh')} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
 
           {shown.length === 0 ? (
-            <EmptyState title="Tidak ada produk" message="Ubah filter atau tambah produk." />
+            <EmptyState title={t('st.empty')} message={t('st.emptySub')} />
           ) : (
             <div className="list mt-3">
               {shown.map((p) => (
@@ -99,11 +101,11 @@ export default function StockScreen() {
                   <div className="grow">
                     <div className="semibold truncate">{p.nama}</div>
                     <div className="small muted">
-                      Stok {formatQty(p.stok_dasar)} {p.base_unit_simbol} · Min {formatQty(p.stok_min)}
+                      {t('pos.stock')} {formatQty(p.stok_dasar)} {p.base_unit_simbol} · {t('st.min')} {formatQty(p.stok_min)}
                     </div>
                   </div>
                   <span className={'badge ' + (p.stok_dasar <= p.stok_min ? 'badge-danger' : 'badge-success')}>
-                    {p.stok_dasar <= p.stok_min ? 'Menipis' : 'Aman'}
+                    {p.stok_dasar <= p.stok_min ? t('prod.low') : t('st.safe')}
                   </span>
                 </div>
               ))}
@@ -115,29 +117,29 @@ export default function StockScreen() {
       <BottomSheet
         open={!!prod}
         onClose={() => setSelected(null)}
-        title={prod ? 'Sesuaikan Stok' : ''}
+        title={prod ? t('st.adjust') : ''}
         footer={
           <button className="btn btn-primary btn-lg btn-block" onClick={simpan}>
-            Simpan Penyesuaian
+            {t('st.saveAdjust')}
           </button>
         }
       >
         {prod ? (
           <div className="col">
             <div className="small muted">
-              Stok saat ini: {formatQty(prod.stok_dasar)} {prod.base_unit_simbol}
+              {t('st.current', { v: formatQty(prod.stok_dasar) + ' ' + prod.base_unit_simbol })}
             </div>
             <Segmented
               value={tipe}
               onChange={setTipe}
               options={[
-                { value: 'MASUK', label: 'Masuk' },
-                { value: 'KELUAR', label: 'Keluar' },
-                { value: 'OPNAME', label: 'Opname' },
+                { value: 'MASUK', label: t('st.in') },
+                { value: 'KELUAR', label: t('st.out') },
+                { value: 'OPNAME', label: t('st.opname') },
               ]}
             />
             <div className="field">
-              <label>Jumlah ({baseUnit?.unit_simbol ?? ''})</label>
+              <label>{t('st.amountIn', { unit: baseUnit?.unit_simbol ?? '' })}</label>
               <input className="input num" inputMode="decimal" value={qtyText} onChange={(e) => setQtyText(e.target.value)} placeholder="0" />
             </div>
             {prod.stok_min > 0 ? (
@@ -148,14 +150,14 @@ export default function StockScreen() {
               </div>
             ) : null}
             <div className="field">
-              <label>Catatan</label>
-              <input className="input" value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Contoh: kiriman supplier / barang rusak" />
+              <label>{t('st.note')}</label>
+              <input className="input" value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder={t('st.notePh')} />
             </div>
 
             <div className="divider" />
-            <div className="card-title">Riwayat Mutasi</div>
+            <div className="card-title">{t('st.history')}</div>
             {mutations.length === 0 ? (
-              <div className="small muted">Belum ada mutasi.</div>
+              <div className="small muted">{t('st.noMove')}</div>
             ) : (
               <div>
                 {mutations.map((m) => (
@@ -186,7 +188,7 @@ export default function StockScreen() {
             setCatatan('');
           }
         }}
-        aria-label="Tambah stok"
+        aria-label={t('st.add')}
       >
         <IconPlus size={26} />
       </button>

@@ -16,6 +16,7 @@ import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { BottomSheet, EmptyState, HeroBanner, Money, NumberSheet } from '../../components/ui';
 import { IconClock, IconMinus, IconPlus, IconSearch, IconStar, IconUser } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 import type { ProductView } from '../../lib/types';
 import CartSheet from './CartSheet';
 
@@ -31,6 +32,7 @@ export default function PosScreen() {
   const [cartOpen, setCartOpen] = useState(false);
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerSearch, setCustomerSearch] = useState('');
+  const lang = useLang(); void lang;
 
   const categories = useMemo(() => listCategories(), [ver]);
   const products = useMemo(
@@ -62,9 +64,9 @@ export default function PosScreen() {
         <div className="appbar-inner">
           <div className="grow">
             <div className="appbar-title">{store?.nama || 'Kokoh'}</div>
-            <div className="appbar-sub">{user?.nama} · Kasir</div>
+            <div className="appbar-sub">{user?.nama} · {t('pos.cashier')}</div>
           </div>
-          <button className="btn btn-icon btn-ghost" style={{ color: '#fff' }} onClick={() => nav('/pos/history')} aria-label="Riwayat">
+          <button className="btn btn-icon btn-ghost" style={{ color: '#fff' }} onClick={() => nav('/pos/history')} aria-label={t('tab.reports')}>
             <IconClock size={22} />
           </button>
         </div>
@@ -77,7 +79,7 @@ export default function PosScreen() {
               <IconSearch size={20} className="search-icon" />
               <input
                 className="search-input"
-                placeholder="Cari nama, kode, atau barcode…"
+                placeholder={t('pos.searchPh')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -86,7 +88,7 @@ export default function PosScreen() {
 
           <div className="row no-scrollbar" style={{ overflowX: 'auto', padding: '12px 16px', gap: 8 }}>
             <button className={'chip' + (category === '' ? ' active' : '')} onClick={() => setCategory('')}>
-              Semua
+              {t('pos.all')}
             </button>
             {categories.map((c) => (
               <button key={c.id} className={'chip' + (category === c.id ? ' active' : '')} onClick={() => setCategory(c.id)}>
@@ -99,15 +101,15 @@ export default function PosScreen() {
             <div style={{ padding: '0 16px 12px' }}>
               <HeroBanner
                 image="./assets/hero-banner.webp"
-                title="Penjualan hari ini"
-                subtitle="Tap produk untuk menambah ke keranjang"
+                title={t('pos.heroTitle')}
+                subtitle={t('pos.heroSub')}
               />
             </div>
           ) : null}
 
           <div style={{ padding: '0 16px' }}>
             {products.length === 0 ? (
-              <EmptyState title="Produk tidak ditemukan" message="Coba kata kunci lain atau tambah produk baru." image="./assets/onboarding.webp" />
+              <EmptyState title={t('pos.notFound')} message={t('pos.notFoundSub')} image="./assets/onboarding.webp" />
             ) : (
               <div className="product-grid">
                 {products.map((p) => (
@@ -125,7 +127,7 @@ export default function PosScreen() {
                       <div className="money money-sm money-primary">{'Rp ' + formatNumber(priceOf(p))}</div>
                       <div className="tiny mt-1">
                         <span className={p.stok_dasar <= p.stok_min ? 'badge badge-danger' : 'badge badge-neutral'}>
-                          Stok {formatQty(p.stok_dasar)} {p.base_unit_simbol}
+                          {t('pos.stock')} {formatQty(p.stok_dasar)} {p.base_unit_simbol}
                         </span>
                       </div>
                     </div>
@@ -141,7 +143,7 @@ export default function PosScreen() {
         <div className="sticky-footer" style={{ bottom: 60 }}>
           <div className="row-between mb-2">
             <div className="row" style={{ gap: 8 }}>
-              <span className="badge badge-primary">{cart.items.length} item</span>
+              <span className="badge badge-primary">{cart.items.length} {t('pos.item')}</span>
               {cart.customer_nama ? (
                 <span className="badge badge-info">
                   <IconUser size={12} /> {cart.customer_nama}
@@ -152,10 +154,10 @@ export default function PosScreen() {
           </div>
           <div className="row">
             <button className="btn btn-soft" onClick={() => setCartOpen(true)} style={{ minWidth: 110 }}>
-              Keranjang
+              {t('pos.cart')}
             </button>
             <button className="btn btn-primary btn-lg grow" onClick={() => nav('/pos/payment')}>
-              Bayar
+              {t('pos.pay')}
             </button>
           </div>
         </div>
@@ -167,7 +169,7 @@ export default function PosScreen() {
         onClose={() => setSheetProduct(null)}
         onAdd={(payload) => {
           cart.add(payload);
-          toast.success('Ditambahkan ke keranjang');
+          toast.success(t('pos.added'));
           setSheetProduct(null);
         }}
       />
@@ -180,10 +182,10 @@ export default function PosScreen() {
         setCustomerOpen(true);
       }} />
 
-      <BottomSheet open={customerOpen} onClose={() => setCustomerOpen(false)} title="Pilih Pelanggan">
+      <BottomSheet open={customerOpen} onClose={() => setCustomerOpen(false)} title={t('pos.chooseCustomer')}>
         <div className="search-wrap mb-3">
           <IconSearch size={18} className="search-icon" />
-          <input className="search-input" placeholder="Cari pelanggan…" value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
+          <input className="search-input" placeholder={t('pos.searchCustomerPh')} value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
         </div>
         <button
           className="btn btn-ghost btn-block mb-2"
@@ -192,7 +194,7 @@ export default function PosScreen() {
             setCustomerOpen(false);
           }}
         >
-          Pelanggan Umum
+          {t('common.generalCustomer')}
         </button>
         <div className="list">
           {customers.map((c) => (
@@ -203,13 +205,13 @@ export default function PosScreen() {
                 cart.setCustomer(c.id, c.nama);
                 if (c.proyek) cart.setProyek(c.proyek);
                 setCustomerOpen(false);
-                toast.success('Pelanggan: ' + c.nama);
+                toast.success(c.nama);
               }}
             >
               <div className="avatar">{c.nama.slice(0, 1).toUpperCase()}</div>
               <div className="grow">
                 <div className="semibold truncate">{c.nama}</div>
-                <div className="small muted">{c.telp || c.kode || 'Pelanggan'}</div>
+                <div className="small muted">{c.telp || c.kode || t('common.customer')}</div>
               </div>
             </div>
           ))}
@@ -252,6 +254,7 @@ function ProductSheet({
   const [qty, setQty] = useState(1);
   const [price, setPrice] = useState(0);
   const [qtySheet, setQtySheet] = useState(false);
+  const lang = useLang(); void lang;
 
   const activeUnit = units[unitIdx] ?? units[0];
 
@@ -296,16 +299,16 @@ function ProductSheet({
             })
           }
         >
-          Tambah · Rp {formatNumber(Math.round(qty * price))}
+          {t('pos.add')} · Rp {formatNumber(Math.round(qty * price))}
         </button>
       }
     >
       <div className="small muted mb-2">
-        Stok: {formatQty(product.stok_dasar)} {product.base_unit_simbol}
-        {kurang ? <span className="badge badge-warning" style={{ marginLeft: 8 }}>Stok kurang</span> : null}
+        {t('pos.stock')}: {formatQty(product.stok_dasar)} {product.base_unit_simbol}
+        {kurang ? <span className="badge badge-warning" style={{ marginLeft: 8 }}>{t('pos.lowStock')}</span> : null}
       </div>
 
-      <div className="label mb-2">Satuan</div>
+      <div className="label mb-2">{t('pos.unit')}</div>
       <div className="row wrap mb-3" style={{ gap: 8 }}>
         {units.map((u, i) => (
           <button key={u.id} className={'chip' + (i === unitIdx ? ' active' : '')} onClick={() => setUnitIdx(i)}>
@@ -315,7 +318,7 @@ function ProductSheet({
         ))}
       </div>
 
-      <div className="label mb-1">Qty ({activeUnit.unit_simbol})</div>
+      <div className="label mb-1">{t('pos.qtyUnit', { unit: activeUnit.unit_simbol })}</div>
       <div className="row">
         <button className="qty-btn" onClick={() => setQty((q) => Math.max(activeUnit.allow_decimal ? 0.1 : 1, roundTo(q - (activeUnit.allow_decimal ? 0.5 : 1), 3)))}>
           <IconMinus size={16} />
@@ -329,7 +332,7 @@ function ProductSheet({
       </div>
 
       <div className="mt-3">
-        <div className="label mb-1">Harga satuan (Rp)</div>
+        <div className="label mb-1">{t('pos.unitPrice')}</div>
         <input
           className="input num"
           inputMode="numeric"
@@ -340,13 +343,13 @@ function ProductSheet({
 
       {activeUnit.konversi !== 1 ? (
         <div className="small muted mt-2">
-          {formatQty(qty)} {activeUnit.unit_simbol} = {formatQty(qtyDasar)} {product.base_unit_simbol}
+          {t('pos.qtyEq', { qty: String(formatQty(qty)), unit: activeUnit.unit_simbol, base: String(formatQty(qtyDasar)), baseUnit: product.base_unit_simbol })}
         </div>
       ) : null}
 
       <NumberSheet
         open={qtySheet}
-        title="Jumlah"
+        title={t('pos.amount')}
         value={qty}
         allowDecimal={!!activeUnit.allow_decimal}
         onClose={() => setQtySheet(false)}

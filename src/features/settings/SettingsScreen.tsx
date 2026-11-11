@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoreProfile, getSetting, setSetting } from '../../lib/repo';
+import { getLang, setLang, t, useLang } from '../../lib/locale';
 import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { AppBar, ConfirmDialog, Switch } from '../../components/ui';
@@ -41,6 +42,7 @@ function Row({
 }
 
 export default function SettingsScreen() {
+  useLang();
   const ver = useDbVersion();
   const nav = useNavigate();
   const user = useSession((s) => s.user);
@@ -54,76 +56,101 @@ export default function SettingsScreen() {
 
   void ver;
 
+  const lang = getLang();
+
   return (
     <div className="screen">
-      <AppBar title="Lainnya" subtitle={user?.nama} hideBack />
+      <AppBar title={t('set.title')} subtitle={user?.nama} hideBack />
       <div className="screen-body">
         <div className="page" style={{ paddingBottom: 140 }}>
           <div className="card" style={{ background: 'var(--secondary)', borderColor: 'var(--secondary)' }}>
             <div className="row">
               <div className="avatar avatar-navy" style={{ background: 'var(--primary)' }}>{(store?.nama ?? 'K').slice(0, 1).toUpperCase()}</div>
               <div className="grow">
-                <div className="semibold" style={{ color: '#fff' }}>{store?.nama ?? 'Toko Anda'}</div>
-                <div className="small" style={{ color: '#94a3b8' }}>{store?.alamat || 'Alamat belum diisi'}</div>
+                <div className="semibold" style={{ color: '#fff' }}>{store?.nama ?? t('set.yourStore')}</div>
+                <div className="small" style={{ color: '#94a3b8' }}>{store?.alamat || t('set.noAddress')}</div>
               </div>
               <button className="text-btn" style={{ color: 'var(--primary-light)' }} onClick={() => nav('/settings/store')}>
-                Ubah
+                {t('set.edit')}
               </button>
             </div>
           </div>
 
           <div className="list mt-4">
-            <Row icon={<IconSettings size={20} />} title="Profil Toko" subtitle="Nama, alamat, nota, pajak" onClick={() => nav('/settings/store')} />
-            <Row icon={<IconUsers size={20} />} title="Pengguna & PIN" subtitle="Pemilik, admin, kasir" onClick={() => nav('/settings/users')} />
-            <Row icon={<IconDownload size={20} />} title="Backup & Restore" subtitle="Simpan cadangan data" onClick={() => nav('/settings/backup')} />
-            <Row icon={<IconWallet size={20} />} title="Kas & Shift" subtitle="Buka/tutup kasir" onClick={() => nav('/shift')} />
+            <Row icon={<IconSettings size={20} />} title={t('set.store')} subtitle={t('set.storeSub')} onClick={() => nav('/settings/store')} />
+            <Row icon={<IconUsers size={20} />} title={t('set.users')} subtitle={t('set.usersSub')} onClick={() => nav('/settings/users')} />
+            <Row icon={<IconDownload size={20} />} title={t('set.backup')} subtitle={t('set.backupSub')} onClick={() => nav('/settings/backup')} />
+            <Row icon={<span style={{ fontSize: 18 }}>🗄️</span>} title={t('set.databases')} subtitle={t('set.databasesSub')} onClick={() => nav('/settings/databases')} />
+            <Row icon={<IconWallet size={20} />} title={t('set.cashShift')} subtitle={t('set.cashShiftSub')} onClick={() => nav('/shift')} />
           </div>
 
           <div className="list mt-3">
-            <Row icon={<IconBox size={20} />} title="Pembelian" subtitle="Barang masuk & hutang supplier" onClick={() => nav('/purchase')} />
-            <Row icon={<IconTruck size={20} />} title="Surat Jalan" subtitle="Status pengiriman" onClick={() => nav('/pos/delivery')} />
+            <Row icon={<IconBox size={20} />} title={t('set.purchase')} subtitle={t('set.purchaseSub')} onClick={() => nav('/purchase')} />
+            <Row icon={<IconTruck size={20} />} title={t('set.delivery')} subtitle={t('set.deliverySub')} onClick={() => nav('/pos/delivery')} />
           </div>
 
           <div className="list mt-3">
             <Row
+              icon={<span style={{ fontSize: 18 }}>🌐</span>}
+              title={t('set.language')}
+              subtitle={lang === 'id' ? 'Bahasa Indonesia' : 'English'}
+              onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
+              right={
+                <div className="row" style={{ gap: 8 }}>
+                  <button
+                    className={'chip' + (lang === 'en' ? ' active' : '')}
+                    onClick={(e) => { e.stopPropagation(); setLang('en'); }}
+                  >
+                    EN
+                  </button>
+                  <button
+                    className={'chip' + (lang === 'id' ? ' active' : '')}
+                    onClick={(e) => { e.stopPropagation(); setLang('id'); }}
+                  >
+                    ID
+                  </button>
+                </div>
+              }
+            />
+            <Row
               icon={<span style={{ fontSize: 18 }}>🔔</span>}
-              title="Bunyi saat scan"
+              title={t('set.sound')}
               right={<Switch on={bunyi} onChange={(v) => { setBunyi(v); setSetting('bunyi_scan', v ? '1' : '0'); }} />}
             />
             <Row
               icon={<span style={{ fontSize: 18 }}>📳</span>}
-              title="Getar (haptic)"
+              title={t('set.haptic')}
               right={<Switch on={haptic} onChange={(v) => { setHaptic(v); setSetting('haptic', v ? '1' : '0'); }} />}
             />
             <Row
               icon={<span style={{ fontSize: 18 }}>💾</span>}
-              title="Backup otomatis"
-              subtitle="Ingatkan backup harian"
+              title={t('set.autoBackup')}
+              subtitle={t('set.autoBackupSub')}
               right={<Switch on={autoBackup} onChange={(v) => { setAutoBackup(v); setSetting('auto_backup', v ? '1' : '0'); }} />}
             />
           </div>
 
           <div className="list mt-3">
-            <Row icon={<span style={{ fontSize: 18 }}>ℹ️</span>} title="Tentang Kokoh" subtitle="Versi 1.0.0" onClick={() => setAboutOpen(true)} />
+            <Row icon={<span style={{ fontSize: 18 }}>ℹ️</span>} title={t('set.about')} subtitle={t('set.version')} onClick={() => setAboutOpen(true)} />
             <Row
               icon={<IconLogout size={20} />}
-              title="Keluar"
+              title={t('set.logout')}
               onClick={() => setLogoutOpen(true)}
             />
           </div>
 
-          <div className="small muted center-text mt-4">Kokoh · Kasir Toko Bangunan · v1.0.0</div>
+          <div className="small muted center-text mt-4">{t('set.footer')}</div>
         </div>
       </div>
 
       <ConfirmDialog
         open={logoutOpen}
-        title="Keluar dari aplikasi?"
-        message="Anda perlu memasukkan PIN lagi untuk masuk."
-        confirmLabel="Keluar"
+        title={t('set.logoutTitle')}
+        message={t('set.logoutMsg')}
+        confirmLabel={t('set.logout')}
         onConfirm={() => {
           logout();
-          toast.success('Berhasil keluar');
+          toast.success(t('set.signedOut'));
           nav('/login', { replace: true });
         }}
         onClose={() => setLogoutOpen(false)}
@@ -131,9 +158,9 @@ export default function SettingsScreen() {
 
       <ConfirmDialog
         open={aboutOpen}
-        title="Tentang Kokoh"
-        message="Kokoh adalah aplikasi kasir offline untuk toko bangunan. Data tersimpan lokal di perangkat. Versi 1.0.0."
-        confirmLabel="Tutup"
+        title={t('set.about')}
+        message={t('set.aboutMsg')}
+        confirmLabel={t('app.close')}
         onConfirm={() => setAboutOpen(false)}
         onClose={() => setAboutOpen(false)}
       />

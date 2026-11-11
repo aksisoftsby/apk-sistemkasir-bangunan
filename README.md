@@ -6,11 +6,11 @@
 
 **Aplikasi kasir (POS) offline untuk toko bangunan / material.**
 
-Stok multi-satuan · HPP per satuan dasar · Piutang & jatuh tempo · Surat jalan · Shift kas · Laporan
+Dua bahasa (English default + Indonesia) · Stok multi-satuan · HPP per satuan dasar · Piutang & jatuh tempo · Surat jalan · Shift kas · Laporan · Manajer database (simpan/muat/bagikan)
 
 [![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)](#)
 [![Target SDK](https://img.shields.io/badge/targetSdk-36%20(Android%2016)-blue)](#)
-[![Versi](https://img.shields.io/badge/versi-1.0.1%20(build%202)-orange)](#)
+[![Versi](https://img.shields.io/badge/versi-1.1.0%20(build%203)-orange)](#)
 [![Offline](https://img.shields.io/badge/100%25-offline-success)](#)
 
 </div>
@@ -53,11 +53,11 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 | --- | --- |
 | **Nama aplikasi** | Kokoh App Bangunan |
 | **Package / applicationId** | `id.aksisoft.kokoh` |
-| **Versi** | `1.0.1` (versionCode `2`) |
+| **Versi** | `1.1.0` (versionCode `3`) |
 | **minSdk** | 24 — Android 7.0 Nougat |
 | **targetSdk / compileSdk** | 36 — Android 16 |
-| **Ukuran terpasang** | ± 5,7 MB (APK universal) |
-| **Bahasa antarmuka** | Indonesia |
+| **Ukuran terpasang** | ± 5,8 MB (APK universal) |
+| **Bahasa antarmuka** | English (default) · Bahasa Indonesia |
 | **Mata uang** | Rupiah (tanpa desimal) |
 | **Izin Android** | hanya `INTERNET` (dipakai untuk membuka tautan WhatsApp) |
 
@@ -119,8 +119,22 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 
 - Profil toko (nama, alamat, telepon, footer nota, PPN, pembulatan).
 - Pengguna & PIN dengan peran **OWNER / ADMIN / KASIR**.
-- **Backup** database ke file `.sqlite` dan **restore** dari file.
+- **Backup** database ke file dan **restore** dari file.
+- **Manajer Database**: simpan database bernama, muat ulang, upload file `.db`, dan bagikan (Telegram / Google Drive / File Manager / WhatsApp).
 - Data 100 % lokal — bisa dipindah HP dengan backup/restore.
+
+### 2.8 Dua Bahasa & Format Angka
+
+- **English adalah bahasa default**; pindah ke **Bahasa Indonesia** lewat
+  *More → Databases → Language* (atau *Lainnya → Database → Bahasa*).
+- Semua layar, nota PDF, surat jalan, dan template WhatsApp ikut bahasa aktif.
+- Angka & tanggal mengikuti bahasa:
+  | | English | Indonesia |
+  | --- | --- | --- |
+  | Angka | `1,250,000` | `1.250.000` |
+  | Desimal | `2.5` | `2,5` |
+  | Tanggal | `Nov 12, 2026` | `12 Nov 2026` |
+- Pilihan bahasa tersimpan di perangkat dan tetap aktif setelah aplikasi ditutup.
 
 ---
 
@@ -280,7 +294,7 @@ Verifikasi tanda tangan:
 & "$env:JAVA_HOME\bin\java.exe" -jar "$env:ANDROID_HOME\build-tools\36.0.0\lib\apksigner.jar" `
   verify --verbose --print-certs android\app\build\outputs\apk\release\app-release.apk
 
-& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.0.1-release.aab
+& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.1.0-release.aab
 ```
 
 ### 7.4 Naikkan versi setiap rilis
@@ -309,7 +323,7 @@ Panduan lengkap (keystore, Play Console, kebijakan target API 36):
 ```
 apk-sistemkasir-bangunan/
 ├── README.md                  # dokumen ini
-├── RELEASE.md                 # catatan rilis 1.0.1 (hash, sertifikat, ukuran)
+├── RELEASE.md                 # catatan rilis 1.1.0 (hash, sertifikat, ukuran)
 ├── package.json
 ├── vite.config.ts             # base './' agar aman di WebView
 ├── capacitor.config.ts        # appId id.aksisoft.kokoh, webDir dist
@@ -341,8 +355,8 @@ apk-sistemkasir-bangunan/
 │   └── gen-screenshots.cjs    # kompres tangkapan layar jadi WebP
 │
 ├── release/                   # artefak siap edar
-│   ├── KokohAppBangunan-1.0.1-release.aab
-│   └── KokohAppBangunan-1.0.1-release.apk
+│   ├── KokohAppBangunan-1.1.0-release.aab
+│   └── KokohAppBangunan-1.1.0-release.apk
 │
 ├── src/
 │   ├── main.tsx               # entry React
@@ -566,6 +580,9 @@ Puppeteer di luar repo. Skenario yang lulus:
 - nota PDF ter-download, tombol WhatsApp menghasilkan tautan `wa.me`
 - laporan: omzet, laba kotor, piutang, nilai stok akurat
 - backup database berhasil dibuat
+- **Dua bahasa**: English default (setup, tab kasir, pembayaran, transaksi berhasil),
+  pindah ke Bahasa Indonesia dan tetap aktif setelah reload
+- **Manajer Database**: simpan database bernama, muncul di daftar, muat ulang
 - **0 error konsol** pada build produksi
 
 Pemeriksaan statis:
@@ -594,12 +611,12 @@ npm run lint    # oxlint
 
 ## 16. Rilis & Lisensi
 
-**Artefak rilis 1.0.1**
+**Artefak rilis 1.1.0**
 
 | File | Ukuran | SHA-256 |
 | --- | --- | --- |
-| `release/KokohAppBangunan-1.0.1-release.aab` | 5,5 MB | `7D553A25E9F6B38423237E4E316B2295C0E4AC612C5ED5CFBEF5B361C81A51DA` |
-| `release/KokohAppBangunan-1.0.1-release.apk` | 5,7 MB | `34D69CE3322261B5393FF3035293FDD294730B690D480022E132E41A6DDA704C` |
+| `release/KokohAppBangunan-1.1.0-release.aab` | 5,5 MB | `C07F83612E412673ED911DF9FD04CA70D89ED1EC98104B31D627ED82920DD687` |
+| `release/KokohAppBangunan-1.1.0-release.apk` | 5,7 MB | `BE7FBF9335243C1955901588F14833FE0056171578512B2FF367450A98F163EC` |
 
 - Ditandatangani `CN=DoniMuslimin, OU=TukangDigital, O=TukangDigital` (RSA, berlaku s/d 2044).
 - Detail sertifikat, hash, dan langkah rilis: **[RELEASE.md](RELEASE.md)**.

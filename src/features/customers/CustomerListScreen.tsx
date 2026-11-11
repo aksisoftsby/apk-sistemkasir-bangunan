@@ -7,8 +7,10 @@ import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, EmptyState, Field, NumberSheet, Segmented } from '../../components/ui';
 import { IconPlus, IconSearch } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 
 export default function CustomerListScreen() {
+  useLang();
   const ver = useDbVersion();
   const nav = useNavigate();
   const user = useSession((s) => s.user);
@@ -62,12 +64,12 @@ export default function CustomerListScreen() {
   return (
     <div className="screen">
       <AppBar
-        title="Pelanggan"
-        subtitle={tab === 'PIUTANG' ? `Total piutang ${formatRupiah(totalPiutang)}` : `${customers.length} pelanggan`}
+        title={t('cus.title')}
+        subtitle={tab === 'PIUTANG' ? t('cus.piutangSub', { v: formatRupiah(totalPiutang) }) : t('cus.countSub', { n: customers.length })}
         hideBack
         right={
           tab === 'CUSTOMER' ? (
-            <button className="btn btn-icon btn-ghost" style={{ color: '#fff' }} onClick={() => setAddOpen(true)} aria-label="Tambah">
+            <button className="btn btn-icon btn-ghost" style={{ color: '#fff' }} onClick={() => setAddOpen(true)} aria-label={t('common.add')}>
               <IconPlus size={22} />
             </button>
           ) : undefined
@@ -79,22 +81,22 @@ export default function CustomerListScreen() {
             value={tab}
             onChange={setTab}
             options={[
-              { value: 'CUSTOMER', label: 'Pelanggan' },
-              { value: 'PIUTANG', label: `Piutang (${receivables.length})` },
+              { value: 'CUSTOMER', label: t('cus.tabCus') },
+              { value: 'PIUTANG', label: t('cus.tabPiutang', { n: receivables.length }) },
             ]}
           />
 
           <div className="search-wrap mt-3">
             <IconSearch size={18} className="search-icon" />
-            <input className="search-input" placeholder="Cari pelanggan…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input className="search-input" placeholder={t('cus.searchPh')} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
 
           {tab === 'CUSTOMER' ? (
             customers.length === 0 ? (
               <EmptyState
-                title="Belum ada pelanggan"
-                message="Tambahkan pelanggan untuk transaksi tempo/kasbon."
-                action={<button className="btn btn-primary" onClick={() => setAddOpen(true)}>Tambah Pelanggan</button>}
+                title={t('cus.empty')}
+                message={t('cus.emptySub')}
+                action={<button className="btn btn-primary" onClick={() => setAddOpen(true)}>{t('cus.addCustomer')}</button>}
               />
             ) : (
               <div className="list mt-3">
@@ -103,9 +105,9 @@ export default function CustomerListScreen() {
                     <div className="avatar">{c.nama.slice(0, 1).toUpperCase()}</div>
                     <div className="grow">
                       <div className="semibold truncate">{c.nama}</div>
-                      <div className="small muted">{c.telp || c.alamat || 'Pelanggan'}</div>
+                      <div className="small muted">{c.telp || c.alamat || t('common.generalCustomer')}</div>
                     </div>
-                    {c.price_tier_id === 't-grosir' ? <span className="badge badge-neutral">Grosir</span> : c.price_tier_id === 't-kontraktor' ? <span className="badge badge-primary">Kontraktor</span> : null}
+                    {c.price_tier_id === 't-grosir' ? <span className="badge badge-neutral">{t('cus.grosir')}</span> : c.price_tier_id === 't-kontraktor' ? <span className="badge badge-primary">{t('cus.kontraktor')}</span> : null}
                   </div>
                 ))}
               </div>
@@ -115,13 +117,13 @@ export default function CustomerListScreen() {
               {telat > 0 ? (
                 <div className="card mt-3" style={{ borderColor: 'var(--danger)', background: 'var(--danger-bg)' }}>
                   <div className="row-between">
-                    <span className="semibold" style={{ color: 'var(--danger)' }}>{telat} nota telat jatuh tempo</span>
+                    <span className="semibold" style={{ color: 'var(--danger)' }}>{t('cus.lateCount', { n: telat })}</span>
                     <span className="money money-sm money-danger">{formatRupiah(totalPiutang)}</span>
                   </div>
                 </div>
               ) : null}
               {receivables.length === 0 ? (
-                <EmptyState title="Tidak ada piutang" message="Semua transaksi sudah lunas." />
+                <EmptyState title={t('cus.noPiutang')} message={t('cus.noPiutangSub')} />
               ) : (
                 <div className="list mt-3">
                   {receivables.map((r) => (
@@ -135,12 +137,12 @@ export default function CustomerListScreen() {
                         <div className="mt-1">
                           {r.jatuh_tempo ? (
                             isLate(r.jatuh_tempo) ? (
-                              <span className="badge badge-danger">Telat {daysLate(r.jatuh_tempo)} hari</span>
+                              <span className="badge badge-danger">{t('cus.lateDays', { n: daysLate(r.jatuh_tempo) })}</span>
                             ) : (
-                              <span className="badge badge-warning">Jatuh tempo {r.jatuh_tempo}</span>
+                              <span className="badge badge-warning">{t('cus.dueOn', { date: r.jatuh_tempo })}</span>
                             )
                           ) : (
-                            <span className="badge badge-neutral">Tempo</span>
+                            <span className="badge badge-neutral">{t('cus.credit')}</span>
                           )}
                         </div>
                       </div>
@@ -148,7 +150,7 @@ export default function CustomerListScreen() {
                         className="btn btn-sm btn-primary"
                         onClick={() => setPayRow({ id: r.sale_id, sisa: r.sisa })}
                       >
-                        Bayar
+                        {t('cus.pay')}
                       </button>
                     </div>
                   ))}
@@ -162,23 +164,23 @@ export default function CustomerListScreen() {
       <BottomSheet
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        title="Pelanggan Baru"
-        footer={<button className="btn btn-primary btn-lg btn-block" onClick={submitCustomer}>Simpan Pelanggan</button>}
+        title={t('cus.newTitle')}
+        footer={<button className="btn btn-primary btn-lg btn-block" onClick={submitCustomer}>{t('cus.saveCustomer')}</button>}
       >
         <div className="col">
-          <Field label="Nama *">
-            <input className="input" value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Nama pelanggan / toko" />
+          <Field label={t('common.name')}>
+            <input className="input" value={nama} onChange={(e) => setNama(e.target.value)} placeholder={t('cus.namePh')} />
           </Field>
-          <Field label="No. WA / Telp">
-            <input className="input" value={telp} onChange={(e) => setTelp(e.target.value)} placeholder="0812..." inputMode="tel" />
+          <Field label={t('cus.waLabel')}>
+            <input className="input" value={telp} onChange={(e) => setTelp(e.target.value)} placeholder={t('cus.waPh')} inputMode="tel" />
           </Field>
-          <Field label="Alamat">
-            <input className="input" value={alamat} onChange={(e) => setAlamat(e.target.value)} placeholder="Alamat" />
+          <Field label={t('common.address')}>
+            <input className="input" value={alamat} onChange={(e) => setAlamat(e.target.value)} placeholder={t('cus.addrPh')} />
           </Field>
-          <Field label="Proyek / Lokasi">
-            <input className="input" value={proyek} onChange={(e) => setProyek(e.target.value)} placeholder="Contoh: Renovasi Ruko Jl. Melati" />
+          <Field label={t('cd.project')}>
+            <input className="input" value={proyek} onChange={(e) => setProyek(e.target.value)} placeholder={t('cus.projPh')} />
           </Field>
-          <Field label="Tingkat Harga">
+          <Field label={t('cus.priceLevel')}>
             <div className="select-wrap">
               <select className="select" value={tier} onChange={(e) => setTier(e.target.value)}>
                 {tiers.map((t) => (
@@ -187,15 +189,15 @@ export default function CustomerListScreen() {
               </select>
             </div>
           </Field>
-          <Field label="Limit Kredit (Rp)">
-            <input className="input num" inputMode="numeric" value={limit ? limit.toLocaleString('id-ID') : ''} onChange={(e) => setLimit(parseInt(e.target.value.replace(/[^0-9]/g, '') || '0', 10))} placeholder="0 = tanpa limit" />
+          <Field label={t('cus.creditLimit')}>
+            <input className="input num" inputMode="numeric" value={limit ? limit.toLocaleString('id-ID') : ''} onChange={(e) => setLimit(parseInt(e.target.value.replace(/[^0-9]/g, '') || '0', 10))} placeholder={t('cus.noLimitPh')} />
           </Field>
         </div>
       </BottomSheet>
 
       <NumberSheet
         open={!!payRow}
-        title="Terima Pembayaran"
+        title={t('cus.acceptPay')}
         value={payRow?.sisa ?? 0}
         prefix="Rp"
         onClose={() => setPayRow(null)}
@@ -203,7 +205,7 @@ export default function CustomerListScreen() {
           if (payRow) {
             try {
               payReceivable(payRow.id, n, 'TUNAI', user?.id ?? '');
-              toast.success('Pembayaran diterima');
+              toast.success(t('cus.payReceived'));
             } catch (e) {
               toast.danger(String(e));
             }

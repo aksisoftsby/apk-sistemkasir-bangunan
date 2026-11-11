@@ -2,12 +2,14 @@ import { useRef, useState } from 'react';
 import { backupDatabase, restoreDatabaseFromFile } from '../../lib/backup';
 import { getSetting, setSetting } from '../../lib/repo';
 import { formatDateTime } from '../../lib/format';
+import { t, useLang } from '../../lib/locale';
 import { toast } from '../../stores/toast';
 import { AppBar, ConfirmDialog } from '../../components/ui';
 import { IconDownload, IconUpload } from '../../components/icons';
 import { flushDb } from '../../lib/db';
 
 export default function BackupScreen() {
+  useLang();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [confirmRestore, setConfirmRestore] = useState<File | null>(null);
@@ -20,9 +22,9 @@ export default function BackupScreen() {
       await backupDatabase();
       const now = new Date().toISOString();
       setSetting('last_backup', now);
-      toast.success('Backup dibuat');
+      toast.success(t('bk.made'));
     } catch (e) {
-      toast.danger('Gagal backup: ' + String(e));
+      toast.danger(t('bk.failBk') + String(e));
     } finally {
       setBusy(false);
     }
@@ -32,10 +34,10 @@ export default function BackupScreen() {
     setBusy(true);
     try {
       await restoreDatabaseFromFile(file);
-      toast.success('Data berhasil dipulihkan');
+      toast.success(t('bk.done'));
       setTimeout(() => window.location.reload(), 800);
     } catch (e) {
-      toast.danger('Gagal restore: ' + String(e));
+      toast.danger(t('bk.failRs') + String(e));
     } finally {
       setBusy(false);
     }
@@ -43,29 +45,29 @@ export default function BackupScreen() {
 
   return (
     <div className="screen">
-      <AppBar title="Backup & Restore" />
+      <AppBar title={t('bk.title')} />
       <div className="screen-body">
         <div className="page">
           <div className="card">
-            <div className="card-title">Backup Data</div>
+            <div className="card-title">{t('bk.dataTitle')}</div>
             <div className="small muted mb-3">
-              Simpan salinan database ke file. Simpan file di tempat aman (Google Drive/WhatsApp diri sendiri).
+              {t('bk.dataSub')}
             </div>
             <button className="btn btn-primary btn-block" onClick={doBackup} disabled={busy}>
-              <IconDownload size={18} /> {busy ? 'Memproses…' : 'Buat Backup Sekarang'}
+              <IconDownload size={18} /> {busy ? t('bk.working') : t('bk.make')}
             </button>
             <div className="small faint mt-2">
-              Backup terakhir: {last ? formatDateTime(last) : 'Belum pernah'}
+              {t('bk.last', { v: last ? formatDateTime(last) : t('bk.never') })}
             </div>
           </div>
 
           <div className="card">
-            <div className="card-title">Restore Data</div>
+            <div className="card-title">{t('bk.restoreTitle')}</div>
             <div className="small muted mb-3">
-              Pulihkan dari file backup .db. Data saat ini akan diganti.
+              {t('bk.restoreSub')}
             </div>
             <button className="btn btn-block" onClick={() => fileRef.current?.click()} disabled={busy}>
-              <IconUpload size={18} /> Pilih File Backup
+              <IconUpload size={18} /> {t('bk.pick')}
             </button>
             <input
               ref={fileRef}
@@ -81,9 +83,9 @@ export default function BackupScreen() {
           </div>
 
           <div className="card" style={{ background: 'var(--warning-bg)', borderColor: 'var(--warning)' }}>
-            <div className="semibold" style={{ color: 'var(--warning)' }}>Penting</div>
+            <div className="semibold" style={{ color: 'var(--warning)' }}>{t('bk.warnTitle')}</div>
             <div className="small" style={{ color: 'var(--warning)' }}>
-              Lakukan backup rutin. Jika HP hilang/rusak tanpa backup, data tidak bisa dikembalikan.
+              {t('bk.warn')}
             </div>
           </div>
         </div>
@@ -91,9 +93,9 @@ export default function BackupScreen() {
 
       <ConfirmDialog
         open={!!confirmRestore}
-        title="Restore data?"
-        message="Semua data saat ini akan diganti oleh isi file backup."
-        confirmLabel="Restore"
+        title={t('bk.confirmTitle')}
+        message={t('bk.confirmMsg')}
+        confirmLabel={t('bk.confirmBtn')}
         danger
         onConfirm={() => {
           if (confirmRestore) void doRestore(confirmRestore);

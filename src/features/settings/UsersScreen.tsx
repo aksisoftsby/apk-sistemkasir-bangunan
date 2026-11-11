@@ -2,11 +2,19 @@ import { useState } from 'react';
 import { useDbVersion } from '../../lib/db';
 import { deleteUser, listUsers, saveUser } from '../../lib/repo';
 import { hashPin } from '../../lib/id';
+import { t, useLang } from '../../lib/locale';
 import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, ConfirmDialog, Field } from '../../components/ui';
 import { IconPlus, IconTrash } from '../../components/icons';
 
+function roleLabel(role: string): string {
+  if (role === 'OWNER') return t('us.ownerRole');
+  if (role === 'ADMIN') return t('us.admin');
+  return t('us.cashier');
+}
+
 export default function UsersScreen() {
+  useLang();
   const ver = useDbVersion();
   const users = listUsers();
   const [open, setOpen] = useState(false);
@@ -38,28 +46,28 @@ export default function UsersScreen() {
 
   function simpan() {
     if (!nama.trim()) {
-      toast.danger('Nama wajib diisi');
+      toast.danger(t('us.nameReq'));
       return;
     }
     if (!editId && pin.length < 4) {
-      toast.danger('PIN minimal 4 digit');
+      toast.danger(t('us.pinMin'));
       return;
     }
     if (editId && pin && pin.length < 4) {
-      toast.danger('PIN minimal 4 digit');
+      toast.danger(t('us.pinMin'));
       return;
     }
     saveUser({ id: editId ?? undefined, nama: nama.trim(), pin, role }, hashPin);
-    toast.success('Pengguna disimpan');
+    toast.success(t('us.saved'));
     setOpen(false);
   }
 
   return (
     <div className="screen">
       <AppBar
-        title="Pengguna & PIN"
-        subtitle={`${users.length} pengguna`}
-        right={<button className="btn btn-icon btn-ghost" style={{ color: '#fff' }} onClick={openNew} aria-label="Tambah"><IconPlus size={22} /></button>}
+        title={t('us.title')}
+        subtitle={t('us.count', { n: users.length })}
+        right={<button className="btn btn-icon btn-ghost" style={{ color: '#fff' }} onClick={openNew} aria-label={t('common.add')}><IconPlus size={22} /></button>}
       />
       <div className="screen-body">
         <div className="page">
@@ -69,20 +77,20 @@ export default function UsersScreen() {
                 <div className="avatar">{u.nama.slice(0, 1).toUpperCase()}</div>
                 <div className="grow clickable" onClick={() => openEdit(u.id)}>
                   <div className="semibold">{u.nama}</div>
-                  <div className="small muted">{u.role}</div>
+                  <div className="small muted">{roleLabel(u.role)}</div>
                 </div>
                 {u.role !== 'OWNER' ? (
-                  <button className="btn btn-icon btn-ghost text-btn-danger" onClick={() => setHapus(u.id)} aria-label="Hapus">
+                  <button className="btn btn-icon btn-ghost text-btn-danger" onClick={() => setHapus(u.id)} aria-label={t('common.delete')}>
                     <IconTrash size={18} />
                   </button>
                 ) : (
-                  <span className="badge badge-primary">Pemilik</span>
+                  <span className="badge badge-primary">{t('us.owner')}</span>
                 )}
               </div>
             ))}
           </div>
           <div className="small muted mt-3">
-            Kasir bisa melakukan transaksi. Admin bisa mengelola produk & stok. Pemilik akses penuh.
+            {t('us.hint')}
           </div>
         </div>
       </div>
@@ -90,21 +98,21 @@ export default function UsersScreen() {
       <BottomSheet
         open={open}
         onClose={() => setOpen(false)}
-        title={editId ? 'Ubah Pengguna' : 'Pengguna Baru'}
-        footer={<button className="btn btn-primary btn-lg btn-block" onClick={simpan}>Simpan</button>}
+        title={editId ? t('us.edit') : t('us.new')}
+        footer={<button className="btn btn-primary btn-lg btn-block" onClick={simpan}>{t('common.save')}</button>}
       >
         <div className="col">
-          <Field label="Nama *"><input className="input" value={nama} onChange={(e) => setNama(e.target.value)} /></Field>
-          <Field label="Peran">
+          <Field label={t('us.name')}><input className="input" value={nama} onChange={(e) => setNama(e.target.value)} /></Field>
+          <Field label={t('us.role')}>
             <div className="select-wrap">
               <select className="select" value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="KASIR">Kasir</option>
-                <option value="ADMIN">Admin</option>
-                <option value="OWNER">Pemilik</option>
+                <option value="KASIR">{t('us.cashier')}</option>
+                <option value="ADMIN">{t('us.admin')}</option>
+                <option value="OWNER">{t('us.ownerRole')}</option>
               </select>
             </div>
           </Field>
-          <Field label={editId ? 'PIN Baru (kosongkan bila tidak diubah)' : 'PIN (4-6 digit) *'}>
+          <Field label={editId ? t('us.pinNew') : t('us.pinLabel')}>
             <input className="input" type="number" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value.slice(0, 6))} placeholder="••••" />
           </Field>
         </div>
@@ -112,14 +120,14 @@ export default function UsersScreen() {
 
       <ConfirmDialog
         open={!!hapus}
-        title="Hapus pengguna?"
-        message="Pengguna tidak akan bisa login lagi. Riwayat tetap tersimpan."
-        confirmLabel="Hapus"
+        title={t('us.deleteTitle')}
+        message={t('us.deleteMsg')}
+        confirmLabel={t('common.delete')}
         danger
         onConfirm={() => {
           if (hapus) {
             deleteUser(hapus);
-            toast.success('Pengguna dihapus');
+            toast.success(t('us.deleted'));
           }
         }}
         onClose={() => setHapus(null)}

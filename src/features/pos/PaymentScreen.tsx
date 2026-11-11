@@ -7,6 +7,7 @@ import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, Money, NumberSheet, Segmented } from '../../components/ui';
 import { IconSearch, IconUser } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 
 type Metode = 'TUNAI' | 'TRANSFER' | 'TEMPO' | 'DP';
 
@@ -25,6 +26,7 @@ export default function PaymentScreen() {
   const [editDiterima, setEditDiterima] = useState(false);
   const [editDp, setEditDp] = useState(false);
   const [saving, setSaving] = useState(false);
+  const lang = useLang(); void lang;
 
   const customers = useMemo(() => (searchCust ? listCustomers(searchCust) : listCustomers('').slice(0, 30)), [searchCust]);
   const customer = cart.customer_id ? getCustomer(cart.customer_id) : null;
@@ -41,25 +43,25 @@ export default function PaymentScreen() {
 
   function submit() {
     if (cart.items.length === 0) {
-      toast.danger('Keranjang kosong');
+      toast.danger(t('pay.cartEmpty'));
       return;
     }
     if (perluCustomer && !customer) {
-      toast.danger('Pilih pelanggan untuk transaksi tempo/DP');
+      toast.danger(t('pay.needCustomer'));
       return;
     }
     if (metode === 'TUNAI' && dibayar < totals.total) {
-      toast.danger('Uang diterima kurang');
+      toast.danger(t('pay.cashShort'));
       return;
     }
     if (metode === 'DP' && dpNominal <= 0) {
-      toast.danger('Nominal DP harus lebih dari 0');
+      toast.danger(t('pay.dpMin'));
       return;
     }
     if (customer && customer.limit_kredit > 0 && sisa > 0) {
       const sisaLama = 0; // limit check sederhana terhadap transaksi ini
       if (sisa + sisaLama > customer.limit_kredit) {
-        toast.warning('Melebihi limit kredit pelanggan');
+        toast.warning(t('pay.overLimit'));
       }
     }
     setSaving(true);
@@ -113,13 +115,13 @@ export default function PaymentScreen() {
 
   return (
     <div className="screen">
-      <AppBar title="Pembayaran" subtitle={'Total ' + formatRupiah(totals.total)} />
+      <AppBar title={t('pay.title')} subtitle={t('pay.totalBill') + ' ' + formatRupiah(totals.total)} />
       <div className="screen-body">
         <div className="page">
           <div className="card center-text">
-            <div className="small muted">Total Tagihan</div>
+            <div className="small muted">{t('pay.totalBill')}</div>
             <div className="money money-xl money-primary mt-1">{formatRupiah(totals.total)}</div>
-            <div className="small muted mt-1">{totals.itemCount} item</div>
+            <div className="small muted mt-1">{t('pay.items', { n: totals.itemCount })}</div>
           </div>
 
           <div className="mt-4">
@@ -130,10 +132,10 @@ export default function PaymentScreen() {
                 if (m === 'TUNAI') setDibayar(totals.total);
               }}
               options={[
-                { value: 'TUNAI', label: 'Tunai' },
-                { value: 'TRANSFER', label: 'Transfer' },
-                { value: 'TEMPO', label: 'Tempo' },
-                { value: 'DP', label: 'DP' },
+                { value: 'TUNAI', label: t('pay.cash') },
+                { value: 'TRANSFER', label: t('pay.transfer') },
+                { value: 'TEMPO', label: t('pay.credit') },
+                { value: 'DP', label: t('pay.downPayment') },
               ]}
             />
           </div>
@@ -142,14 +144,14 @@ export default function PaymentScreen() {
             <>
               <button className="btn btn-soft btn-block mt-3" onClick={() => setPickCustomer(true)}>
                 <IconUser size={18} />
-                {customer ? customer.nama : 'Pilih Pelanggan *'}
+                {customer ? customer.nama : t('pay.pickCustomer')}
               </button>
               <div className="mt-3">
-                <div className="label mb-2">Jatuh Tempo</div>
+                <div className="label mb-2">{t('pay.due')}</div>
                 <div className="row wrap" style={{ gap: 8 }}>
                   {[7, 14, 30, 60].map((d) => (
                     <button key={d} className={'chip' + (tempoHari === d ? ' active' : '')} onClick={() => setTempoHari(d)}>
-                      {d} hari
+                      {t('pay.days', { n: d })}
                     </button>
                   ))}
                 </div>
@@ -160,12 +162,12 @@ export default function PaymentScreen() {
           {metode === 'TUNAI' ? (
             <div className="card mt-3">
               <div className="row-between">
-                <span className="small muted">Uang diterima</span>
-                <button className="text-btn" onClick={() => setEditDiterima(true)}>Ubah</button>
+                <span className="small muted">{t('pay.received')}</span>
+                <button className="text-btn" onClick={() => setEditDiterima(true)}>{t('pay.changeBtn')}</button>
               </div>
               <div className="money money-lg mt-1">{formatRupiah(dibayar)}</div>
               <div className="row wrap mt-3" style={{ gap: 8 }}>
-                <button className="chip" onClick={() => setDibayar(totals.total)}>Pas</button>
+                <button className="chip" onClick={() => setDibayar(totals.total)}>{t('pay.exact')}</button>
                 {[50000, 100000, 200000].map((n) => (
                   <button key={n} className="chip" onClick={() => setDibayar(n)}>
                     {'Rp ' + formatNumber(n)}
@@ -175,12 +177,12 @@ export default function PaymentScreen() {
               <div className="divider" />
               {kurang > 0 ? (
                 <div className="row-between">
-                  <span className="strong" style={{ color: 'var(--danger)' }}>Kurang</span>
+                  <span className="strong" style={{ color: 'var(--danger)' }}>{t('pay.short')}</span>
                   <Money value={kurang} size="lg" className="money-danger" />
                 </div>
               ) : (
                 <div className="row-between">
-                  <span className="strong" style={{ color: 'var(--success)' }}>Kembalian</span>
+                  <span className="strong" style={{ color: 'var(--success)' }}>{t('pay.change')}</span>
                   <Money value={kembalian} size="lg" className="money-success" />
                 </div>
               )}
@@ -190,8 +192,8 @@ export default function PaymentScreen() {
           {metode === 'DP' ? (
             <div className="card mt-3">
               <div className="row-between">
-                <span className="small muted">DP diterima</span>
-                <button className="text-btn" onClick={() => setEditDp(true)}>Ubah</button>
+                <span className="small muted">{t('pay.dpReceived')}</span>
+                <button className="text-btn" onClick={() => setEditDp(true)}>{t('pay.changeBtn')}</button>
               </div>
               <div className="money money-lg mt-1">{formatRupiah(dpNominal)}</div>
               <div className="row wrap mt-3" style={{ gap: 8 }}>
@@ -203,7 +205,7 @@ export default function PaymentScreen() {
               </div>
               <div className="divider" />
               <div className="row-between">
-                <span className="strong" style={{ color: 'var(--warning)' }}>Sisa jadi piutang</span>
+                <span className="strong" style={{ color: 'var(--warning)' }}>{t('pay.restCredit')}</span>
                 <Money value={sisa} size="lg" className="money-danger" />
               </div>
             </div>
@@ -212,7 +214,7 @@ export default function PaymentScreen() {
           {metode === 'TEMPO' ? (
             <div className="card mt-3">
               <div className="row-between">
-                <span className="strong" style={{ color: 'var(--warning)' }}>Seluruhnya jadi piutang</span>
+                <span className="strong" style={{ color: 'var(--warning)' }}>{t('pay.allCredit')}</span>
                 <Money value={sisa} size="lg" className="money-danger" />
               </div>
             </div>
@@ -221,7 +223,7 @@ export default function PaymentScreen() {
           {metode === 'TRANSFER' ? (
             <div className="card mt-3">
               <div className="small muted">
-                Catat pembayaran transfer secara manual. Pastikan dana sudah masuk sebelum menyimpan.
+                {t('pay.transferNote')}
               </div>
             </div>
           ) : null}
@@ -230,14 +232,14 @@ export default function PaymentScreen() {
 
       <div className="sticky-footer">
         <button className="btn btn-primary btn-lg btn-block" onClick={submit} disabled={saving}>
-          {saving ? 'Menyimpan…' : 'Selesai & Simpan'}
+          {saving ? t('pay.saving') : t('pay.finishSave')}
         </button>
       </div>
 
-      <BottomSheet open={pickCustomer} onClose={() => setPickCustomer(false)} title="Pilih Pelanggan">
+      <BottomSheet open={pickCustomer} onClose={() => setPickCustomer(false)} title={t('pay.pickCustomer')}>
         <div className="search-wrap mb-3">
           <IconSearch size={18} className="search-icon" />
-          <input className="search-input" placeholder="Cari pelanggan…" value={searchCust} onChange={(e) => setSearchCust(e.target.value)} />
+          <input className="search-input" placeholder={t('pos.searchCustomerPh')} value={searchCust} onChange={(e) => setSearchCust(e.target.value)} />
         </div>
         <div className="list">
           {customers.map((c) => (
@@ -252,9 +254,9 @@ export default function PaymentScreen() {
               <div className="avatar">{c.nama.slice(0, 1).toUpperCase()}</div>
               <div className="grow">
                 <div className="semibold truncate">{c.nama}</div>
-                <div className="small muted">{c.telp || 'Pelanggan'}</div>
+                <div className="small muted">{c.telp || t('common.customer')}</div>
               </div>
-              {c.price_tier_id ? <span className="badge badge-neutral">{c.price_tier_id === 't-grosir' ? 'Grosir' : c.price_tier_id === 't-kontraktor' ? 'Kontraktor' : 'Eceran'}</span> : null}
+              {c.price_tier_id ? <span className="badge badge-neutral">{c.price_tier_id === 't-grosir' ? t('cus.grosir') : c.price_tier_id === 't-kontraktor' ? t('cus.kontraktor') : t('cus.eceran')}</span> : null}
             </div>
           ))}
         </div>
@@ -262,7 +264,7 @@ export default function PaymentScreen() {
 
       <NumberSheet
         open={editDiterima}
-        title="Uang Diterima"
+        title={t('pay.amountReceived')}
         value={dibayar}
         prefix="Rp"
         quickAmounts={[50000, 100000, 200000, 500000]}
@@ -274,7 +276,7 @@ export default function PaymentScreen() {
       />
       <NumberSheet
         open={editDp}
-        title="Nominal DP"
+        title={t('pay.nominalDp')}
         value={dpNominal}
         prefix="Rp"
         onClose={() => setEditDp(false)}

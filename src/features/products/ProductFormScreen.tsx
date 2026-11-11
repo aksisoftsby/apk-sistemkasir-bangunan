@@ -15,6 +15,7 @@ import { formatNumber, parseRupiahInput } from '../../lib/format';
 import { toast } from '../../stores/toast';
 import { AppBar, ConfirmDialog, Field, Switch } from '../../components/ui';
 import { IconMinus, IconPlus } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 
 interface UnitRow {
   unit_id: string;
@@ -24,6 +25,7 @@ interface UnitRow {
 }
 
 export default function ProductFormScreen() {
+  useLang();
   const ver = useDbVersion();
   const { id } = useParams();
   const nav = useNavigate();
@@ -79,7 +81,7 @@ export default function ProductFormScreen() {
   function addUnit() {
     const next = allUnits.find((u) => !unitRows.some((r) => r.unit_id === u.id));
     if (!next) {
-      toast.warning('Semua satuan sudah ditambahkan');
+      toast.warning(t('pf.allUnitsAdded'));
       return;
     }
     setUnitRows((r) => [...r, { unit_id: next.id, konversi: 1, is_default_jual: 0, is_default_beli: 0 }]);
@@ -91,11 +93,11 @@ export default function ProductFormScreen() {
 
   function submit() {
     if (!nama.trim()) {
-      toast.danger('Nama produk wajib diisi');
+      toast.danger(t('pf.nameReq'));
       return;
     }
     if (unitRows.length === 0) {
-      toast.danger('Minimal satu satuan');
+      toast.danger(t('pf.minUnit'));
       return;
     }
     const unitPrices = unitRows.flatMap((u) =>
@@ -122,32 +124,32 @@ export default function ProductFormScreen() {
         prices: unitPrices,
         stok_awal: !isEdit ? stokAwal : 0,
       });
-      toast.success(isEdit ? 'Produk diperbarui' : 'Produk ditambahkan');
+      toast.success(isEdit ? t('pf.updated') : t('pf.added'));
       nav('/products/' + pid, { replace: true });
     } catch (e) {
-      toast.danger('Gagal menyimpan: ' + String(e));
+      toast.danger(t('common.failedSave') + String(e));
     }
   }
 
   return (
     <div className="screen">
-      <AppBar title={isEdit ? 'Ubah Produk' : 'Produk Baru'} />
+      <AppBar title={isEdit ? t('prod.edit') : t('prod.new')} />
       <div className="screen-body">
         <div className="page">
           <div className="card">
             <div className="col">
-              <Field label="Nama Produk *">
-                <input className="input" value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Contoh: Semen Tiga Roda 50 kg" />
+              <Field label={t('pf.name')}>
+                <input className="input" value={nama} onChange={(e) => setNama(e.target.value)} placeholder={t('pf.namePh')} />
               </Field>
               <div className="row" style={{ gap: 12 }}>
-                <Field label="SKU">
-                  <input className="input" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="SMN-001" />
+                <Field label={t('pf.sku')}>
+                  <input className="input" value={sku} onChange={(e) => setSku(e.target.value)} placeholder={t('pf.skuPh')} />
                 </Field>
-                <Field label="Barcode">
-                  <input className="input" value={barcode} onChange={(e) => setBarcode(e.target.value)} placeholder="899..." />
+                <Field label={t('pf.barcode')}>
+                  <input className="input" value={barcode} onChange={(e) => setBarcode(e.target.value)} placeholder={t('pf.barcodePh')} />
                 </Field>
               </div>
-              <Field label="Kategori">
+              <Field label={t('pf.category')}>
                 <div className="select-wrap">
                   <select className="select" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
                     {categories.map((c) => (
@@ -156,7 +158,7 @@ export default function ProductFormScreen() {
                   </select>
                 </div>
               </Field>
-              <Field label="Satuan Dasar">
+              <Field label={t('pf.baseUnit')}>
                 <div className="select-wrap">
                   <select className="select" value={baseUnitId} onChange={(e) => setBaseUnitId(e.target.value)}>
                     {allUnits.map((u) => (
@@ -170,12 +172,12 @@ export default function ProductFormScreen() {
 
           <div className="card">
             <div className="row-between mb-2">
-              <div className="card-title" style={{ margin: 0 }}>Satuan & Konversi</div>
+              <div className="card-title" style={{ margin: 0 }}>{t('pf.unitsTitle')}</div>
               <button className="text-btn" onClick={addUnit}>
-                <IconPlus size={16} /> Satuan
+                <IconPlus size={16} /> {t('pf.addUnit')}
               </button>
             </div>
-            <div className="small muted mb-2">Contoh: 1 sak = 50 kg. Isi faktor konversi ke satuan dasar.</div>
+            <div className="small muted mb-2">{t('pf.unitHint')}</div>
             {unitRows.map((u) => (
               <div key={u.unit_id} className="row mb-2" style={{ gap: 8 }}>
                 <span className="chip chip-primary" style={{ minWidth: 64, justifyContent: 'center' }}>{unitSymbol(u.unit_id)}</span>
@@ -193,21 +195,21 @@ export default function ProductFormScreen() {
                 />
                 <span className="small muted grow">{unitSymbol(baseUnitId)}</span>
                 {u.unit_id !== baseUnitId ? (
-                  <button className="btn btn-icon btn-ghost text-btn-danger" onClick={() => setUnitRows((rows) => rows.filter((r) => r.unit_id !== u.unit_id))} aria-label="Hapus">
+                  <button className="btn btn-icon btn-ghost text-btn-danger" onClick={() => setUnitRows((rows) => rows.filter((r) => r.unit_id !== u.unit_id))} aria-label={t('common.delete')}>
                     <IconMinus size={16} />
                   </button>
                 ) : (
-                  <span className="badge badge-neutral">dasar</span>
+                  <span className="badge badge-neutral">{t('pf.base')}</span>
                 )}
               </div>
             ))}
           </div>
 
           <div className="card">
-            <div className="card-title">Harga Jual</div>
+            <div className="card-title">{t('pf.sellPrice')}</div>
             {unitRows.map((u) => (
               <div key={u.unit_id} className="mb-3">
-                <div className="label mb-1">Per {unitSymbol(u.unit_id)}</div>
+                <div className="label mb-1">{t('pf.per', { unit: unitSymbol(u.unit_id) })}</div>
                 <div className="row" style={{ gap: 8 }}>
                   {tiers.map((t) => {
                     const key = `${u.unit_id}|${t.id}`;
@@ -235,39 +237,39 @@ export default function ProductFormScreen() {
           </div>
 
           <div className="card">
-            <div className="card-title">Stok & Modal</div>
+            <div className="card-title">{t('pf.stockCapital')}</div>
             <div className="row" style={{ gap: 12 }}>
-              <Field label={`HPP per ${allUnits.find((u) => u.id === baseUnitId)?.simbol ?? 'satuan dasar'} (Rp)`}>
+              <Field label={t('pf.hpp', { unit: allUnits.find((u) => u.id === baseUnitId)?.simbol ?? t('pf.base') })}>
                 <input className="input num" inputMode="numeric" value={formatNumber(hpp)} onChange={(e) => setHpp(parseRupiahInput(e.target.value))} />
               </Field>
-              <Field label="Stok minimum (satuan dasar)">
+              <Field label={t('pf.minStock')}>
                 <input className="input num" inputMode="numeric" value={formatNumber(stokMin)} onChange={(e) => setStokMin(parseRupiahInput(e.target.value))} />
               </Field>
             </div>
             {!isEdit ? (
-              <Field label="Stok awal (satuan dasar)">
+              <Field label={t('pf.openStock')}>
                 <input className="input num mt-2" inputMode="numeric" value={formatNumber(stokAwal)} onChange={(e) => setStokAwal(parseRupiahInput(e.target.value))} />
               </Field>
             ) : null}
-            <Field label="Catatan">
-              <textarea className="textarea mt-2" value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Catatan internal (opsional)" />
+            <Field label={t('pf.note')}>
+              <textarea className="textarea mt-2" value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder={t('pf.notePh')} />
             </Field>
             <div className="row-between mt-3">
-              <span className="label">Tampilkan sebagai favorit</span>
+              <span className="label">{t('pf.fav')}</span>
               <Switch on={favorit} onChange={setFavorit} />
             </div>
             <div className="row-between mt-2">
-              <span className="label">Produk aktif</span>
+              <span className="label">{t('pf.active')}</span>
               <Switch on={aktif} onChange={setAktif} />
             </div>
           </div>
 
           <button className="btn btn-primary btn-lg btn-block mt-4" onClick={submit}>
-            {isEdit ? 'Simpan Perubahan' : 'Simpan Produk'}
+            {isEdit ? t('pf.saveEdit') : t('pf.saveNew')}
           </button>
           {isEdit ? (
             <button className="btn btn-danger-soft btn-block mt-2" onClick={() => setConfirmDelete(true)}>
-              Hapus Produk
+              {t('pf.deleteProduct')}
             </button>
           ) : null}
         </div>
@@ -275,14 +277,14 @@ export default function ProductFormScreen() {
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Hapus produk?"
-        message="Produk akan disembunyikan dari daftar. Riwayat transaksi tetap aman."
-        confirmLabel="Hapus"
+        title={t('pf.deleteTitle')}
+        message={t('pf.deleteMsg')}
+        confirmLabel={t('common.delete')}
         danger
         onConfirm={() => {
           if (product) {
             deleteProduct(product.id);
-            toast.success('Produk dihapus');
+            toast.success(t('pf.deleted'));
             nav('/products', { replace: true });
           }
         }}

@@ -9,6 +9,7 @@ import {
   shiftSummary,
 } from '../../lib/repo';
 import { formatDateTime, formatNumber, formatRupiah } from '../../lib/format';
+import { t, useLang } from '../../lib/locale';
 import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, ConfirmDialog, Field, Segmented } from '../../components/ui';
@@ -16,7 +17,32 @@ import { IconMinus, IconPlus, IconWallet } from '../../components/icons';
 
 type Tipe = 'MASUK' | 'KELUAR';
 
+const CAT_IN = ['Operasional', 'Modal Tambahan', 'Pelunasan Piutang', 'Lainnya'];
+const CAT_OUT = ['Operasional', 'Bensin / Transport', 'Gaji', 'Beli Perlengkapan', 'Setor Pemilik', 'Lainnya'];
+
+function catLabel(v: string): string {
+  switch (v) {
+    case 'Operasional':
+      return t('sh.catOperational');
+    case 'Modal Tambahan':
+      return t('sh.catExtra');
+    case 'Pelunasan Piutang':
+      return t('sh.catReceivable');
+    case 'Bensin / Transport':
+      return t('sh.catFuel');
+    case 'Gaji':
+      return t('sh.catSalary');
+    case 'Beli Perlengkapan':
+      return t('sh.catSupplies');
+    case 'Setor Pemilik':
+      return t('sh.catOwner');
+    default:
+      return t('sh.catOther');
+  }
+}
+
 export default function ShiftScreen() {
+  useLang();
   const ver = useDbVersion();
   const user = useSession((s) => s.user);
   const setShift = useSession((s) => s.setShift);
@@ -42,17 +68,17 @@ export default function ShiftScreen() {
     const id = openShift(user.id, kasAwal);
     setShift(id);
     setOpenSheet(false);
-    toast.success('Kas dibuka');
+    toast.success(t('sh.opened'));
   }
 
   function catatKas() {
     if (!user) return;
     if (nominal <= 0) {
-      toast.danger('Nominal harus lebih dari 0');
+      toast.danger(t('sh.amountMin'));
       return;
     }
     shiftCashInOut(shift?.id ?? null, tipe, kategori, nominal, catatan, user.id);
-    toast.success('Transaksi kas dicatat');
+    toast.success(t('sh.recorded'));
     setKasSheet(false);
     setNominal(0);
     setCatatan('');
@@ -64,7 +90,7 @@ export default function ShiftScreen() {
       closeShift(shift.id, kasFisik);
       setShift(null);
       setCloseOpen(false);
-      toast.success('Kas ditutup');
+      toast.success(t('sh.closed'));
     } catch (e) {
       toast.danger(String(e));
     }
@@ -72,7 +98,7 @@ export default function ShiftScreen() {
 
   return (
     <div className="screen">
-      <AppBar title="Kas & Shift" subtitle={user?.nama} />
+      <AppBar title={t('sh.title')} subtitle={user?.nama} />
       <div className="screen-body">
         <div className="page" style={{ paddingBottom: 140 }}>
           {!shift ? (
@@ -81,68 +107,68 @@ export default function ShiftScreen() {
                 <div className="avatar avatar-navy" style={{ margin: '0 auto', width: 56, height: 56 }}>
                   <IconWallet size={26} />
                 </div>
-                <div className="h3 mt-3">Kas belum dibuka</div>
-                <div className="small muted">Buka kas untuk mencatat uang masuk dan keluar selama shift.</div>
+                <div className="h3 mt-3">{t('sh.notOpen')}</div>
+                <div className="small muted">{t('sh.notOpenSub')}</div>
               </div>
               <button className="btn btn-primary btn-lg btn-block mt-4" onClick={() => setOpenSheet(true)}>
-                Buka Kas
+                {t('sh.openCash')}
               </button>
             </div>
           ) : (
             <>
               <div className="card" style={{ background: 'var(--secondary)', borderColor: 'var(--secondary)' }}>
-                <div className="small" style={{ color: '#94a3b8' }}>Kas Sistem Saat Ini</div>
+                <div className="small" style={{ color: '#94a3b8' }}>{t('sh.current')}</div>
                 <div className="money money-xl" style={{ color: '#fff' }}>{formatRupiah(summary?.sistem ?? 0)}</div>
                 <div className="small mt-1" style={{ color: '#94a3b8' }}>
-                  Dibuka {formatDateTime(shift.buka_at)}
+                  {t('sh.openedAt', { date: formatDateTime(shift.buka_at) })}
                 </div>
               </div>
 
               <div className="kpi-grid mt-3">
                 <div className="kpi">
-                  <div className="kpi-label">Kas Awal</div>
+                  <div className="kpi-label">{t('sh.openBal')}</div>
                   <div className="kpi-value">{formatRupiah(shift.kas_awal)}</div>
                 </div>
                 <div className="kpi">
-                  <div className="kpi-label">Tunai Penjualan</div>
+                  <div className="kpi-label">{t('sh.cashSales')}</div>
                   <div className="kpi-value" style={{ color: 'var(--success)' }}>{formatRupiah(summary?.tunai_penjualan ?? 0)}</div>
                 </div>
                 <div className="kpi">
-                  <div className="kpi-label">Kas Masuk</div>
+                  <div className="kpi-label">{t('sh.in')}</div>
                   <div className="kpi-value" style={{ color: 'var(--success)' }}>{formatRupiah(summary?.masuk ?? 0)}</div>
                 </div>
                 <div className="kpi">
-                  <div className="kpi-label">Kas Keluar</div>
+                  <div className="kpi-label">{t('sh.out')}</div>
                   <div className="kpi-value" style={{ color: 'var(--danger)' }}>{formatRupiah(summary?.keluar ?? 0)}</div>
                 </div>
               </div>
 
               <div className="row mt-3" style={{ gap: 8 }}>
                 <button className="btn btn-sm grow" onClick={() => { setTipe('MASUK'); setKategori('Operasional'); setKasSheet(true); }}>
-                  <IconPlus size={16} /> Kas Masuk
+                  <IconPlus size={16} /> {t('sh.in')}
                 </button>
                 <button className="btn btn-sm grow" onClick={() => { setTipe('KELUAR'); setKategori('Operasional'); setKasSheet(true); }}>
-                  <IconMinus size={16} /> Kas Keluar
+                  <IconMinus size={16} /> {t('sh.out')}
                 </button>
               </div>
 
               <button className="btn btn-danger-soft btn-block mt-3" onClick={() => { setKasFisik(summary?.sistem ?? 0); setCloseOpen(true); }}>
-                Tutup Kas / Shift
+                {t('sh.closeShiftBtn')}
               </button>
 
               <div className="card mt-3">
-                <div className="card-title">Mutasi Kas Shift Ini</div>
+                <div className="card-title">{t('sh.mutations')}</div>
                 {!summary || summary.transactions.length === 0 ? (
-                  <div className="small muted">Belum ada mutasi kas.</div>
+                  <div className="small muted">{t('sh.noMutations')}</div>
                 ) : (
-                  summary.transactions.map((t) => (
-                    <div key={t.id} className="row-between small mb-2">
+                  summary.transactions.map((tr) => (
+                    <div key={tr.id} className="row-between small mb-2">
                       <div className="grow">
-                        <div className="semibold" style={{ fontSize: 13 }}>{t.kategori}</div>
-                        <div className="tiny faint">{formatDateTime(t.tanggal)}{t.catatan ? ' · ' + t.catatan : ''}</div>
+                        <div className="semibold" style={{ fontSize: 13 }}>{catLabel(tr.kategori)}</div>
+                        <div className="tiny faint">{formatDateTime(tr.tanggal)}{tr.catatan ? ' · ' + tr.catatan : ''}</div>
                       </div>
-                      <span className={'money money-sm ' + (t.tipe === 'MASUK' ? 'money-success' : 'money-danger')}>
-                        {t.tipe === 'MASUK' ? '+' : '-'}{formatRupiah(t.jumlah)}
+                      <span className={'money money-sm ' + (tr.tipe === 'MASUK' ? 'money-success' : 'money-danger')}>
+                        {tr.tipe === 'MASUK' ? '+' : '-'}{formatRupiah(tr.jumlah)}
                       </span>
                     </div>
                   ))
@@ -152,20 +178,20 @@ export default function ShiftScreen() {
           )}
 
           <div className="card mt-3">
-            <div className="card-title">Riwayat Shift</div>
+            <div className="card-title">{t('sh.history')}</div>
             {closed.length === 0 ? (
-              <div className="small muted">Belum ada shift yang ditutup.</div>
+              <div className="small muted">{t('sh.noHistory')}</div>
             ) : (
               closed.map((s) => (
                 <div key={s.id} className="row-between small mb-2">
                   <div>
                     <div>{formatDateTime(s.tutup_at ?? s.buka_at)}</div>
-                    <div className="tiny faint">Kas awal {formatRupiah(s.kas_awal)}</div>
+                    <div className="tiny faint">{t('sh.startCash', { v: formatRupiah(s.kas_awal) })}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div className="money money-sm">{formatRupiah(s.kas_akhir_fisik)}</div>
                     <div className={'tiny ' + (s.selisih === 0 ? 'faint' : s.selisih > 0 ? 'money-success' : 'money-danger')}>
-                      {s.selisih === 0 ? 'Pas' : (s.selisih > 0 ? 'Lebih ' : 'Kurang ') + formatNumber(Math.abs(s.selisih))}
+                      {s.selisih === 0 ? t('sh.exact') : s.selisih > 0 ? t('sh.over', { v: formatNumber(Math.abs(s.selisih)) }) : t('sh.short', { v: formatNumber(Math.abs(s.selisih)) })}
                     </div>
                   </div>
                 </div>
@@ -178,11 +204,11 @@ export default function ShiftScreen() {
       <BottomSheet
         open={openSheet}
         onClose={() => setOpenSheet(false)}
-        title="Buka Kas"
-        footer={<button className="btn btn-primary btn-lg btn-block" onClick={bukaKas}>Buka Kas Sekarang</button>}
+        title={t('sh.openCash')}
+        footer={<button className="btn btn-primary btn-lg btn-block" onClick={bukaKas}>{t('sh.openNow')}</button>}
       >
         <div className="col">
-          <Field label="Kas Awal / Modal Laci (Rp)">
+          <Field label={t('sh.openLabel')}>
             <input
               className="input num"
               inputMode="numeric"
@@ -194,30 +220,30 @@ export default function ShiftScreen() {
           <div className="row wrap" style={{ gap: 8 }}>
             {[0, 100000, 200000, 500000, 1000000].map((n) => (
               <button key={n} className={'chip' + (kasAwal === n ? ' active' : '')} onClick={() => setKasAwal(n)}>
-                {n === 0 ? 'Tanpa modal' : formatNumber(n)}
+                {n === 0 ? t('sh.noCapital') : formatNumber(n)}
               </button>
             ))}
           </div>
-          <div className="small muted">Kas awal adalah uang tunai di laci saat mulai shift.</div>
+          <div className="small muted">{t('sh.openHint')}</div>
         </div>
       </BottomSheet>
 
       <BottomSheet
         open={kasSheet}
         onClose={() => setKasSheet(false)}
-        title={tipe === 'MASUK' ? 'Kas Masuk' : 'Kas Keluar'}
-        footer={<button className="btn btn-primary btn-lg btn-block" onClick={catatKas}>Simpan</button>}
+        title={tipe === 'MASUK' ? t('sh.in') : t('sh.out')}
+        footer={<button className="btn btn-primary btn-lg btn-block" onClick={catatKas}>{t('common.save')}</button>}
       >
         <div className="col">
           <Segmented
             value={tipe}
             onChange={setTipe}
             options={[
-              { value: 'MASUK', label: 'Masuk' },
-              { value: 'KELUAR', label: 'Keluar' },
+              { value: 'MASUK', label: t('sh.tabIn') },
+              { value: 'KELUAR', label: t('sh.tabOut') },
             ]}
           />
-          <Field label="Nominal (Rp)">
+          <Field label={t('sh.amountLabel')}>
             <input
               className="input num"
               inputMode="numeric"
@@ -226,20 +252,17 @@ export default function ShiftScreen() {
               placeholder="0"
             />
           </Field>
-          <Field label="Kategori">
+          <Field label={t('sh.category')}>
             <div className="select-wrap">
               <select className="select" value={kategori} onChange={(e) => setKategori(e.target.value)}>
-                {(tipe === 'MASUK'
-                  ? ['Operasional', 'Modal Tambahan', 'Pelunasan Piutang', 'Lainnya']
-                  : ['Operasional', 'Bensin / Transport', 'Gaji', 'Beli Perlengkapan', 'Setor Pemilik', 'Lainnya']
-                ).map((k) => (
-                  <option key={k} value={k}>{k}</option>
+                {(tipe === 'MASUK' ? CAT_IN : CAT_OUT).map((k) => (
+                  <option key={k} value={k}>{catLabel(k)}</option>
                 ))}
               </select>
             </div>
           </Field>
-          <Field label="Catatan">
-            <input className="input" value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Opsional" />
+          <Field label={t('common.note')}>
+            <input className="input" value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder={t('sh.notePh')} />
           </Field>
         </div>
       </BottomSheet>
@@ -247,15 +270,15 @@ export default function ShiftScreen() {
       <BottomSheet
         open={closeOpen}
         onClose={() => setCloseOpen(false)}
-        title="Tutup Kas"
-        footer={<button className="btn btn-primary btn-lg btn-block" onClick={() => setConfirmClose(true)}>Lanjut Tutup Kas</button>}
+        title={t('sh.closeTitle')}
+        footer={<button className="btn btn-primary btn-lg btn-block" onClick={() => setConfirmClose(true)}>{t('sh.continueClose')}</button>}
       >
         <div className="col">
           <div className="row-between small">
-            <span className="muted">Kas menurut sistem</span>
+            <span className="muted">{t('sh.systemCash')}</span>
             <span className="money money-sm">{formatRupiah(summary?.sistem ?? 0)}</span>
           </div>
-          <Field label="Kas fisik dihitung (Rp)">
+          <Field label={t('sh.physicalLabel')}>
             <input
               className="input num"
               inputMode="numeric"
@@ -265,20 +288,20 @@ export default function ShiftScreen() {
             />
           </Field>
           <div className="row-between">
-            <span className="semibold">Selisih</span>
+            <span className="semibold">{t('sh.diff')}</span>
             <span className={'money money-md ' + (selisih === 0 ? '' : selisih > 0 ? 'money-success' : 'money-danger')}>
               {formatRupiah(selisih)}
             </span>
           </div>
-          <div className="small muted">Hitung uang tunai di laci, lalu masukkan jumlahnya.</div>
+          <div className="small muted">{t('sh.closeHint')}</div>
         </div>
       </BottomSheet>
 
       <ConfirmDialog
         open={confirmClose}
-        title="Tutup shift sekarang?"
-        message={`Kas sistem ${formatRupiah(summary?.sistem ?? 0)}, kas fisik ${formatRupiah(kasFisik)}. Shift tidak bisa dibuka kembali.`}
-        confirmLabel="Tutup Kas"
+        title={t('sh.confirmTitle')}
+        message={t('sh.confirmMsg', { sys: formatRupiah(summary?.sistem ?? 0), fisik: formatRupiah(kasFisik) })}
+        confirmLabel={t('sh.confirmBtn')}
         danger
         onConfirm={() => {
           setConfirmClose(false);

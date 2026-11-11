@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatNumber, parseRupiahInput } from '../lib/format';
 import { useToast } from '../stores/toast';
+import { t, useLang } from '../lib/locale';
 import { IconBack, IconX } from './icons';
 
 /* ================= AppBar ================= */
@@ -22,6 +23,7 @@ export function AppBar({
   noSticky?: boolean;
   hideBack?: boolean;
 }) {
+  useLang();
   const nav = useNavigate();
   return (
     <div className={'appbar' + (light ? ' appbar-light' : '')} style={noSticky ? { position: 'relative' } : undefined}>
@@ -31,7 +33,7 @@ export function AppBar({
             className="btn btn-icon btn-ghost"
             style={{ color: light ? 'var(--text)' : '#fff', minWidth: 40 }}
             onClick={() => (onBack ? onBack() : nav(-1))}
-            aria-label="Kembali"
+            aria-label={t('ui.back')}
           >
             <IconBack size={22} />
           </button>
@@ -60,6 +62,7 @@ export function BottomSheet({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  useLang();
   if (!open) return null;
   return (
     <>
@@ -69,7 +72,7 @@ export function BottomSheet({
         {title ? (
           <div className="row-between" style={{ padding: '0 16px 8px' }}>
             <div className="h3">{title}</div>
-            <button className="btn btn-icon btn-ghost" onClick={onClose} aria-label="Tutup">
+            <button className="btn btn-icon btn-ghost" onClick={onClose} aria-label={t('ui.close')}>
               <IconX size={20} />
             </button>
           </div>
@@ -95,6 +98,7 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  useLang();
   if (!open) return null;
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -111,7 +115,7 @@ export function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = 'Ya',
+  confirmLabel,
   danger,
   onConfirm,
   onClose,
@@ -124,6 +128,8 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onClose: () => void;
 }) {
+  useLang();
+  const okLabel = confirmLabel ?? t('common.yes');
   return (
     <Modal
       open={open}
@@ -132,7 +138,7 @@ export function ConfirmDialog({
       footer={
         <div className="row">
           <button className="btn btn-ghost grow" onClick={onClose}>
-            Batal
+            {t('ui.cancel')}
           </button>
           <button
             className={'btn grow ' + (danger ? 'btn-danger' : 'btn-primary')}
@@ -141,7 +147,7 @@ export function ConfirmDialog({
               onClose();
             }}
           >
-            {confirmLabel}
+            {okLabel}
           </button>
         </div>
       }
@@ -171,6 +177,7 @@ export function Numpad({
   onQuick?: (label: string) => void;
   quickLabels?: string[];
 }) {
+  useLang();
   return (
     <div>
       {quickLabels && quickLabels.length > 0 ? (
@@ -206,7 +213,7 @@ export function Numpad({
       </div>
       {showDecimal ? (
         <button className="text-btn mt-2" onClick={onClear}>
-          Hapus semua
+          {t('ui.clearAll')}
         </button>
       ) : null}
     </div>
@@ -233,6 +240,7 @@ export function NumberSheet({
   onClose: () => void;
   onConfirm: (n: number) => void;
 }) {
+  useLang();
   const [text, setText] = useState<string>('');
   useEffect(() => {
     if (open) setText(value ? String(value) : '');
@@ -269,7 +277,7 @@ export function NumberSheet({
       title={title}
       footer={
         <button className="btn btn-primary btn-lg btn-block" onClick={confirm}>
-          Simpan
+          {t('ui.save')}
         </button>
       }
     >
@@ -312,6 +320,7 @@ export function Segmented<T extends string>({
   value: T;
   onChange: (v: T) => void;
 }) {
+  useLang();
   return (
     <div className="seg">
       {options.map((o) => (
@@ -329,6 +338,7 @@ export function Segmented<T extends string>({
 
 /* ================= Switch ================= */
 export function Switch({ on, onChange, disabled }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  useLang();
   return (
     <button
       className={'switch' + (on ? ' on' : '')}
@@ -342,6 +352,7 @@ export function Switch({ on, onChange, disabled }: { on: boolean; onChange: (v: 
 
 /* ================= Field ================= */
 export function Field({ label, children }: { label: string; children: ReactNode }) {
+  useLang();
   return (
     <div className="field">
       <label>{label}</label>
@@ -362,6 +373,7 @@ export function EmptyState({
   action?: ReactNode;
   image?: string;
 }) {
+  useLang();
   return (
     <div className="empty">
       {image ? <img src={image} alt="" className="empty-img" /> : null}
@@ -374,6 +386,7 @@ export function EmptyState({
 
 /* ================= Toast host ================= */
 export function ToastHost() {
+  useLang();
   const items = useToast((s) => s.items);
   return (
     <div className="toast-wrap">
@@ -392,6 +405,7 @@ export function ToastHost() {
 
 /* ================= Money text ================= */
 export function Money({ value, size = 'md', className = '' }: { value: number; size?: 'sm' | 'md' | 'lg' | 'xl'; className?: string }) {
+  useLang();
   const cls = size === 'sm' ? 'money-sm' : size === 'lg' ? 'money-lg' : size === 'xl' ? 'money-xl' : '';
   return <span className={'money ' + cls + ' ' + className}>{'Rp ' + formatNumber(value)}</span>;
 }
@@ -408,6 +422,7 @@ export function HeroBanner({
   subtitle?: string;
   onClick?: () => void;
 }) {
+  useLang();
   return (
     <div className="hero-banner" onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
       <img src={image} alt="" />

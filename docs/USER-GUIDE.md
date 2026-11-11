@@ -301,6 +301,20 @@ Rumus penting:
 - **Pilih File Backup** → restore. ⚠️ **Data saat ini diganti seluruhnya.**
   Konfirmasi dulu, lalu aplikasi reload otomatis.
 
+### Manajer Database (Lainnya → Database)
+
+Selain backup, ada halaman **Database** untuk mengelola banyak file data:
+
+- **Simpan Database Saat Ini** dengan nama bebas (mis. `stok-opname-nov`)
+  → tersimpan dan muncul di daftar.
+- **Load** → beralih ke file lain (salinan pengaman dibuat otomatis dulu).
+- **Share** → kirim file ke **Telegram, Google Drive, File Manager, WhatsApp**,
+  atau simpan di tempat lain lewat share sheet Android.
+- **Upload File .db** → impor file dari Download / WA / Drive, lalu muat.
+- **Bahasa** juga diatur di halaman ini: **English (default)** atau
+  **Bahasa Indonesia** — semua tulisan, angka (`1,250,000` vs `1.250.000`),
+  dan tanggal mengikuti pilihan.
+
 **Rutinitas yang disarankan:**
 
 - Backup **setiap hari** setelah tutup kas.
@@ -319,6 +333,7 @@ Rumus penting:
 | Profil Toko | Nama, alamat, telepon, footer nota, PPN default (%), pembulatan (0/100/500/1000) |
 | Pengguna & PIN | Tambah kasir (nama + PIN + peran OWNER/ADMIN/KASIR), nonaktifkan user. Aksi sensitif (batal nota, tutup kas) tercatat atas nama user login |
 | Backup & Restore | Seperti bab 14 |
+| Database | Simpan/muat/bagikan file database + pilihan Bahasa (EN default / ID) |
 | Kas & Shift | Seperti bab 12 |
 | Pembelian | Seperti bab 11 |
 | Surat Jalan | Seperti bab 6 |

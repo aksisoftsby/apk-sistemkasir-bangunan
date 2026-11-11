@@ -5,6 +5,7 @@ import { Browser } from '@capacitor/browser';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { formatDateTime, formatQty, formatRupiah } from './format';
+import { t } from './locale';
 import type { Sale, SaleItem } from './types';
 
 export interface ReceiptData {
@@ -44,7 +45,7 @@ function buildPdf(d: ReceiptData, mode: 'nota' | 'surat_jalan'): jsPDF {
     y += 4;
   }
   if (d.store.telp) {
-    center('Telp: ' + d.store.telp, 7);
+    center(t('rc.tel') + d.store.telp, 7);
     y += 4;
   }
   y += 2;
@@ -54,20 +55,20 @@ function buildPdf(d: ReceiptData, mode: 'nota' | 'surat_jalan'): jsPDF {
   y += 5;
 
   if (mode === 'surat_jalan') {
-    center('SURAT JALAN', 11, true);
+    center(t('rc.delivery'), 11, true);
     y += 5;
-    left('No.  : ' + d.sale.no_nota.replace('INV', 'SJ'));
+    left(t('rc.no') + d.sale.no_nota.replace('INV', 'SJ'));
     y += 4;
-    left('Tgl  : ' + formatDateTime(d.sale.tanggal));
+    left(t('rc.date') + formatDateTime(d.sale.tanggal));
     y += 4;
-    left('Kpd  : ' + d.customer_nama);
+    left(t('rc.to') + d.customer_nama);
     y += 4;
     if (d.sale.proyek) {
-      left('Proy : ' + d.sale.proyek);
+      left(t('rc.proj') + d.sale.proyek);
       y += 4;
     }
     if (d.sale.catatan) {
-      left('Ket  : ' + d.sale.catatan);
+      left(t('rc.note') + d.sale.catatan);
       y += 4;
     }
     y += 2;
@@ -77,30 +78,30 @@ function buildPdf(d: ReceiptData, mode: 'nota' | 'surat_jalan'): jsPDF {
       theme: 'plain',
       styles: { fontSize: 8, cellPadding: 1 },
       headStyles: { fontStyle: 'bold' },
-      head: [['Barang', 'Qty', 'Satuan']],
+      head: [[t('rc.colItem'), t('rc.colQty'), t('rc.colUnit')]],
       body: d.items.map((it) => [it.nama_produk, formatQty(it.qty), it.satuan]),
     });
     const endY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
     doc.setFontSize(8);
-    doc.text('Penerima,', 6, endY);
-    doc.text('Pengirim,', w - 6, endY, { align: 'right' });
+    doc.text(t('rc.receiver'), 6, endY);
+    doc.text(t('rc.sender'), w - 6, endY, { align: 'right' });
     doc.text('(....................)', 6, endY + 16);
     doc.text('(....................)', w - 6, endY + 16, { align: 'right' });
     return doc;
   }
 
-  center('NOTA PENJUALAN', 10, true);
+  center(t('rc.sale'), 10, true);
   y += 5;
-  left('No.  : ' + d.sale.no_nota);
+  left(t('rc.no') + d.sale.no_nota);
   y += 4;
-  left('Tgl  : ' + formatDateTime(d.sale.tanggal));
+  left(t('rc.date') + formatDateTime(d.sale.tanggal));
   y += 4;
-  left('Kasir: ' + d.kasir_nama);
+  left(t('rc.cashier') + d.kasir_nama);
   y += 4;
-  left('Kpd  : ' + d.customer_nama);
+  left(t('rc.to') + d.customer_nama);
   y += 4;
   if (d.sale.proyek) {
-    left('Proy : ' + d.sale.proyek);
+    left(t('rc.proj') + d.sale.proyek);
     y += 4;
   }
   y += 1;
@@ -115,7 +116,7 @@ function buildPdf(d: ReceiptData, mode: 'nota' | 'surat_jalan'): jsPDF {
     theme: 'plain',
     styles: { fontSize: 8, cellPadding: 1 },
     headStyles: { fontStyle: 'bold', fillColor: false, textColor: 0 },
-    head: [['Barang', 'Qty', 'Harga', 'Jumlah']],
+    head: [[t('rc.colItem'), t('rc.colQty'), t('rc.colPrice'), t('rc.colTotal')]],
     body: d.items.map((it) => [
       it.nama_produk,
       formatQty(it.qty) + ' ' + it.satuan,
@@ -135,25 +136,25 @@ function buildPdf(d: ReceiptData, mode: 'nota' | 'surat_jalan'): jsPDF {
   doc.setLineDashPattern([], 0);
   y += 5;
 
-  left('Subtotal'); right(formatRupiah(d.sale.subtotal)); y += 4;
-  if (d.sale.diskon > 0) { left('Diskon'); right('-' + formatRupiah(d.sale.diskon)); y += 4; }
-  if (d.sale.ppn > 0) { left('PPN'); right(formatRupiah(d.sale.ppn)); y += 4; }
-  if (d.sale.biaya_kirim > 0) { left('Kirim'); right(formatRupiah(d.sale.biaya_kirim)); y += 4; }
-  if (d.sale.pembulatan !== 0) { left('Pembulatan'); right(formatRupiah(d.sale.pembulatan)); y += 4; }
+  left(t('common.subtotal')); right(formatRupiah(d.sale.subtotal)); y += 4;
+  if (d.sale.diskon > 0) { left(t('common.discount')); right('-' + formatRupiah(d.sale.diskon)); y += 4; }
+  if (d.sale.ppn > 0) { left(t('common.tax')); right(formatRupiah(d.sale.ppn)); y += 4; }
+  if (d.sale.biaya_kirim > 0) { left(t('rc.ship')); right(formatRupiah(d.sale.biaya_kirim)); y += 4; }
+  if (d.sale.pembulatan !== 0) { left(t('common.rounding')); right(formatRupiah(d.sale.pembulatan)); y += 4; }
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
-  doc.text('TOTAL', 6, y);
+  doc.text(t('common.total'), 6, y);
   doc.text(formatRupiah(d.sale.total), w - 6, y, { align: 'right' });
   y += 6;
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  left('Bayar (' + d.metode + ')'); right(formatRupiah(d.dibayar)); y += 4;
+  left(t('rc.paid', { m: d.metode })); right(formatRupiah(d.dibayar)); y += 4;
   if (d.sale.sisa > 0) {
     doc.setFont('helvetica', 'bold');
-    left('Sisa (Piutang)'); right(formatRupiah(d.sale.sisa)); y += 4;
+    left(t('rc.rest')); right(formatRupiah(d.sale.sisa)); y += 4;
     if (d.sale.jatuh_tempo) {
       doc.setFont('helvetica', 'normal');
-      left('Jatuh tempo'); right(d.sale.jatuh_tempo); y += 4;
+      left(t('rc.due')); right(d.sale.jatuh_tempo); y += 4;
     }
   }
   y += 3;
@@ -162,11 +163,11 @@ function buildPdf(d: ReceiptData, mode: 'nota' | 'surat_jalan'): jsPDF {
   doc.setLineDashPattern([], 0);
   y += 5;
   doc.setFontSize(8);
-  doc.text(d.store.footer_nota || 'Terima kasih', w / 2, y, { align: 'center' });
+  doc.text(d.store.footer_nota || t('rc.thanks'), w / 2, y, { align: 'center' });
   y += 5;
   doc.setFontSize(7);
   doc.setTextColor(120);
-  doc.text('Dicetak via Kokoh', w / 2, y, { align: 'center' });
+  doc.text(t('rc.printedBy'), w / 2, y, { align: 'center' });
   return doc;
 }
 

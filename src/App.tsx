@@ -7,6 +7,7 @@ import { initDb, useAutoSaveOnHide, useDbVersion } from './lib/db';
 import { getStoreProfile } from './lib/repo';
 import { useSession } from './stores/session';
 import { ToastHost } from './components/ui';
+import { t, useLang } from './lib/locale';
 import { IconBox, IconCart, IconChart, IconSettings, IconUsers } from './components/icons';
 import LoginScreen from './features/auth/LoginScreen';
 import SetupScreen from './features/auth/SetupScreen';
@@ -25,20 +26,22 @@ import SettingsScreen from './features/settings/SettingsScreen';
 import StoreSettingsScreen from './features/settings/StoreSettingsScreen';
 import UsersScreen from './features/settings/UsersScreen';
 import BackupScreen from './features/settings/BackupScreen';
+import DatabasesScreen from './features/settings/DatabasesScreen';
 import PurchaseScreen from './features/purchase/PurchaseScreen';
 import PurchaseFormScreen from './features/purchase/PurchaseFormScreen';
 import ShiftScreen from './features/shift/ShiftScreen';
 import DeliveryScreen from './features/pos/DeliveryScreen';
 
 function TabBar() {
+  useLang();
   const nav = useNavigate();
   const loc = useLocation();
   const tabs = [
-    { path: '/pos', label: 'Kasir', icon: IconCart },
-    { path: '/products', label: 'Produk', icon: IconBox },
-    { path: '/customers', label: 'Pelanggan', icon: IconUsers },
-    { path: '/reports', label: 'Laporan', icon: IconChart },
-    { path: '/settings', label: 'Lainnya', icon: IconSettings },
+    { path: '/pos', label: t('tab.pos'), icon: IconCart },
+    { path: '/products', label: t('tab.products'), icon: IconBox },
+    { path: '/customers', label: t('tab.customers'), icon: IconUsers },
+    { path: '/reports', label: t('tab.reports'), icon: IconChart },
+    { path: '/settings', label: t('tab.more'), icon: IconSettings },
   ];
   const active = tabs.find((t) => loc.pathname.startsWith(t.path));
   return (
@@ -85,6 +88,7 @@ function Protected() {
         <Route path="/settings/store" element={<StoreSettingsScreen />} />
         <Route path="/settings/users" element={<UsersScreen />} />
         <Route path="/settings/backup" element={<BackupScreen />} />
+        <Route path="/settings/databases" element={<DatabasesScreen />} />
         <Route path="/purchase" element={<PurchaseScreen />} />
         <Route path="/purchase/new" element={<PurchaseFormScreen />} />
         <Route path="/shift" element={<ShiftScreen />} />
@@ -96,6 +100,7 @@ function Protected() {
 }
 
 function Shell() {
+  useLang();
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const user = useSession((s) => s.user);
@@ -136,7 +141,7 @@ function Shell() {
   if (error) {
     return (
       <div className="splash">
-        <div className="h2">Gagal memuat aplikasi</div>
+        <div className="h2">{t('app.loadFail')}</div>
         <div className="small" style={{ opacity: 0.8 }}>{error}</div>
       </div>
     );
@@ -147,7 +152,7 @@ function Shell() {
       <div className="splash">
         <img src="./assets/logo.webp" alt="Kokoh" />
         <div className="h2">Kokoh</div>
-        <div className="small" style={{ opacity: 0.75 }}>Kasir Toko Bangunan</div>
+        <div className="small" style={{ opacity: 0.75 }}>{t('app.tagline')}</div>
         <div className="spinner" style={{ borderTopColor: '#fff', borderColor: 'rgba(255,255,255,.2)' }} />
       </div>
     );

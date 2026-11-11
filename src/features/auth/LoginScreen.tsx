@@ -5,8 +5,10 @@ import { hashPin } from '../../lib/id';
 import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { formatDate } from '../../lib/format';
+import { t, useLang } from '../../lib/locale';
 
 export default function LoginScreen() {
+  useLang();
   const nav = useNavigate();
   const setUser = useSession((s) => s.setUser);
   const setShift = useSession((s) => s.setShift);
@@ -24,10 +26,10 @@ export default function LoginScreen() {
         const shift = getOpenShift(found.id);
         setUser({ id: found.id, nama: found.nama, role: found.role as 'OWNER' });
         setShift(shift?.id ?? null);
-        toast.success(`Halo, ${found.nama}`);
+        toast.success(t('auth.hello', { name: found.nama }));
         nav('/pos', { replace: true });
       } else if (next.length === 6) {
-        toast.danger('PIN salah');
+        toast.danger(t('auth.wrongPin'));
         setPin('');
       }
     }
@@ -45,7 +47,7 @@ export default function LoginScreen() {
         <div style={{ textAlign: 'center', marginTop: 24 }}>
           <img src="./assets/logo.webp" alt="Kokoh" style={{ width: 96, height: 96, borderRadius: 22, margin: '0 auto' }} />
           <div className="h1 mt-3" style={{ color: '#fff' }}>Kokoh</div>
-          <div className="small" style={{ color: '#cbd5e1' }}>Kasir Toko Bangunan</div>
+          <div className="small" style={{ color: '#cbd5e1' }}>{t('app.tagline')}</div>
           <div className="tiny" style={{ color: '#94a3b8', marginTop: 4 }}>{formatDate(new Date().toISOString())}</div>
         </div>
 
@@ -69,7 +71,7 @@ export default function LoginScreen() {
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
           <div style={{ color: '#e2e8f0', fontWeight: 600 }}>
-            {sel ? `Masuk sebagai ${sel.nama}` : 'Masukkan PIN'}
+            {sel ? t('auth.signInAs', { name: sel.nama }) : t('auth.enterPin')}
           </div>
         </div>
 
@@ -97,7 +99,7 @@ export default function LoginScreen() {
             </button>
           </div>
           <div className="tiny center-text mt-3" style={{ color: '#94a3b8' }}>
-            Lupa PIN? Hubungi pemilik untuk reset.
+            {t('auth.forgot')}
           </div>
         </div>
       </div>

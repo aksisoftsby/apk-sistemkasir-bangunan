@@ -5,12 +5,14 @@ import { listSales } from '../../lib/repo';
 import { formatDateTime, formatRupiah } from '../../lib/format';
 import { AppBar, EmptyState, Segmented } from '../../components/ui';
 import { IconSearch } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 
 export default function HistoryScreen() {
   const ver = useDbVersion();
   const nav = useNavigate();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<'ALL' | 'LUNAS' | 'TEMPO' | 'DP' | 'BATAL'>('ALL');
+  const lang = useLang(); void lang;
 
   const sales = useMemo(
     () => listSales({ search: search || undefined, status: status === 'ALL' ? undefined : status, limit: 200 }),
@@ -19,28 +21,28 @@ export default function HistoryScreen() {
 
   return (
     <div className="screen">
-      <AppBar title="Riwayat Transaksi" />
+      <AppBar title={t('hist.title')} />
       <div className="screen-body">
         <div className="page">
           <div className="search-wrap">
             <IconSearch size={18} className="search-icon" />
-            <input className="search-input" placeholder="Cari no. nota / pelanggan…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input className="search-input" placeholder={t('hist.searchPh')} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <div className="mt-3">
             <Segmented
               value={status}
               onChange={setStatus}
               options={[
-                { value: 'ALL', label: 'Semua' },
-                { value: 'LUNAS', label: 'Lunas' },
-                { value: 'TEMPO', label: 'Tempo' },
-                { value: 'BATAL', label: 'Batal' },
+                { value: 'ALL', label: t('hist.all') },
+                { value: 'LUNAS', label: t('hist.lunas') },
+                { value: 'TEMPO', label: t('hist.tempo') },
+                { value: 'BATAL', label: t('hist.void') },
               ]}
             />
           </div>
 
           {sales.length === 0 ? (
-            <EmptyState title="Belum ada transaksi" message="Transaksi yang tersimpan akan muncul di sini." />
+            <EmptyState title={t('hist.empty')} message={t('hist.emptySub')} />
           ) : (
             <div className="list mt-3">
               {sales.map((s) => (
@@ -58,7 +60,7 @@ export default function HistoryScreen() {
                           (s.status === 'LUNAS' ? 'badge-success' : s.status === 'BATAL' ? 'badge-danger' : 'badge-warning')
                         }
                       >
-                        {s.status}
+                        {s.status === 'LUNAS' ? t('hist.lunas') : s.status === 'BATAL' ? t('hist.void') : s.status === 'TEMPO' ? t('hist.tempo') : s.status}
                       </span>
                     </div>
                   </div>

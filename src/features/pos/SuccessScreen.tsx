@@ -7,6 +7,7 @@ import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { BottomSheet, Money } from '../../components/ui';
 import { IconCheck, IconShare, IconTruck } from '../../components/icons';
+import { t, useLang } from '../../lib/locale';
 
 export default function SuccessScreen() {
   const { id } = useParams();
@@ -19,13 +20,14 @@ export default function SuccessScreen() {
   const [sjOpen, setSjOpen] = useState(false);
   const [alamat, setAlamat] = useState(customer?.alamat ?? '');
   const [sopir, setSopir] = useState('');
+  const lang = useLang(); void lang;
 
   if (!sale) {
     return (
       <div className="screen">
         <div className="page center-text">
-          <div className="h2">Transaksi tidak ditemukan</div>
-          <button className="btn btn-primary mt-4" onClick={() => nav('/pos')}>Kembali ke Kasir</button>
+          <div className="h2">{t('ok.notFound')}</div>
+          <button className="btn btn-primary mt-4" onClick={() => nav('/pos')}>{t('ok.backToPos')}</button>
         </div>
       </div>
     );
@@ -36,11 +38,11 @@ export default function SuccessScreen() {
       nama: store?.nama ?? 'Kokoh',
       alamat: store?.alamat ?? '',
       telp: store?.telp ?? '',
-      footer_nota: store?.footer_nota ?? 'Terima kasih',
+      footer_nota: store?.footer_nota ?? t('ok.thankYou'),
     },
     sale,
     items,
-    customer_nama: customer?.nama ?? 'Umum',
+    customer_nama: customer?.nama ?? t('ok.walkIn'),
     kasir_nama: user?.nama ?? '',
     metode: sale.status === 'TEMPO' ? 'TEMPO' : sale.status === 'DP' ? 'DP (sebagian)' : 'TUNAI',
     dibayar: sale.total_bayar,
@@ -50,16 +52,22 @@ export default function SuccessScreen() {
     try {
       await shareReceipt(data);
     } catch (e) {
-      toast.danger('Gagal membagikan nota: ' + String(e));
+      toast.danger(t('ok.shareFail') + String(e));
     }
   }
 
   async function doWa() {
     if (!customer?.telp) {
-      toast.warning('Pelanggan belum punya nomor WA');
+      toast.warning(t('ok.noWa'));
       return;
     }
-    const text = `*${store?.nama ?? 'Kokoh'}*\nNota: ${sale!.no_nota}\nTanggal: ${formatDateTime(sale!.tanggal)}\nTotal: ${formatRupiah(sale!.total)}\n${sale!.sisa > 0 ? `Sisa: ${formatRupiah(sale!.sisa)}\n` : ''}Terima kasih.`;
+    const text = t('ok.receiptText', {
+      store: store?.nama ?? 'Kokoh',
+      no: sale!.no_nota,
+      date: formatDateTime(sale!.tanggal),
+      total: formatRupiah(sale!.total),
+      rest: sale!.sisa > 0 ? `${t('ok.restPaid', { amount: formatRupiah(sale!.sisa) })}\n` : '',
+    });
     try {
       await shareText(text);
       await openExternal(whatsappLink(customer.telp, text));
@@ -74,7 +82,7 @@ export default function SuccessScreen() {
         <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
           <IconCheck size={38} />
         </div>
-        <div className="h2 mt-3" style={{ color: '#fff' }}>Transaksi Berhasil</div>
+        <div className="h2 mt-3" style={{ color: '#fff' }}>{t('ok.success')}</div>
         <div className="small" style={{ color: '#cbd5e1' }}>{sale.no_nota}</div>
         <div className="money money-xl mt-2" style={{ color: '#fff' }}>{formatRupiah(sale.total)}</div>
       </div>
@@ -91,12 +99,12 @@ export default function SuccessScreen() {
           ))}
           <div className="divider" />
           <div className="row-between">
-            <span className="strong">Total</span>
+            <span className="strong">{t('common.total')}</span>
             <Money value={sale.total} size="lg" />
           </div>
           {sale.sisa > 0 ? (
             <div className="row-between mt-2">
-              <span className="small" style={{ color: 'var(--warning)' }}>Sisa piutang (jatuh tempo {sale.jatuh_tempo})</span>
+              <span className="small" style={{ color: 'var(--warning)' }}>{t('ok.restDue', { date: sale.jatuh_tempo ?? '-' })}</span>
               <span className="money money-sm money-danger">{formatRupiah(sale.sisa)}</span>
             </div>
           ) : null}
@@ -104,19 +112,19 @@ export default function SuccessScreen() {
 
         <div className="col mt-4">
           <button className="btn btn-primary btn-lg btn-block" onClick={() => nav('/pos', { replace: true })}>
-            Transaksi Baru
+            {t('ok.newSale')}
           </button>
           <button className="btn btn-block" onClick={doShare}>
-            <IconShare size={18} /> Cetak / Bagikan Nota (PDF)
+            <IconShare size={18} /> {t('ok.printShare')}
           </button>
           <button className="btn btn-block" onClick={doWa}>
-            <IconShare size={18} /> Kirim ke WhatsApp
+            <IconShare size={18} /> {t('ok.sendWa')}
           </button>
           <button className="btn btn-block" onClick={() => setSjOpen(true)}>
-            <IconTruck size={18} /> Buat Surat Jalan
+            <IconTruck size={18} /> {t('ok.makeDelivery')}
           </button>
           <button className="btn btn-ghost btn-block" onClick={() => nav('/pos/history/' + sale.id)}>
-            Lihat Detail Transaksi
+            {t('ok.viewDetail')}
           </button>
         </div>
       </div>
@@ -124,7 +132,7 @@ export default function SuccessScreen() {
       <BottomSheet
         open={sjOpen}
         onClose={() => setSjOpen(false)}
-        title="Surat Jalan"
+        title={t('ok.deliveryTitle')}
         footer={
           <button
             className="btn btn-primary btn-lg btn-block"
@@ -136,28 +144,28 @@ export default function SuccessScreen() {
                   sopir,
                   status: 'BELUM_DIKIRIM',
                 });
-                await shareSuratJalan({ ...data, sale: { ...sale, catatan: (sale.catatan ? sale.catatan + ' · ' : '') + 'Sopir: ' + (sopir || '-') + ' · Alamat: ' + (alamat || '-') } });
+                await shareSuratJalan({ ...data, sale: { ...sale, catatan: (sale.catatan ? sale.catatan + ' · ' : '') + t('ok.driverNote', { driver: sopir || '-', address: alamat || '-' }) } });
                 setSjOpen(false);
-                toast.success('Surat jalan dibuat');
+                toast.success(t('ok.made'));
               } catch (e) {
-                toast.danger('Gagal: ' + String(e));
+                toast.danger(t('ok.failed') + String(e));
               }
             }}
           >
-            Cetak / Bagikan Surat Jalan
+            {t('ok.printDelivery')}
           </button>
         }
       >
         <div className="col">
           <div className="field">
-            <label>Alamat Kirim</label>
-            <input className="input" value={alamat} onChange={(e) => setAlamat(e.target.value)} placeholder="Alamat proyek / rumah" />
+            <label>{t('ok.shipTo')}</label>
+            <input className="input" value={alamat} onChange={(e) => setAlamat(e.target.value)} placeholder={t('ok.shipToPh')} />
           </div>
           <div className="field">
-            <label>Nama Sopir</label>
-            <input className="input" value={sopir} onChange={(e) => setSopir(e.target.value)} placeholder="Nama sopir" />
+            <label>{t('ok.driver')}</label>
+            <input className="input" value={sopir} onChange={(e) => setSopir(e.target.value)} placeholder={t('ok.driverPh')} />
           </div>
-          <div className="small muted">Surat jalan mencetak daftar barang tanpa harga.</div>
+          <div className="small muted">{t('ok.deliveryNote')}</div>
         </div>
       </BottomSheet>
     </div>
