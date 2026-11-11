@@ -1,0 +1,7 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kokoh App Bangunan</string>
+    <string name="title_activity_main">Kokoh App Bangunan</string>
+    <string name="package_name">id.aksisoft.kokoh</string>
+    <string name="custom_url_scheme">id.aksisoft.kokoh</string>
+</resources>

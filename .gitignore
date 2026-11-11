@@ -1,0 +1,36 @@
+# === Node / Vite ===
+node_modules/
+dist/
+*.local
+.vite/
+
+# === Android build output ===
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+android/.idea/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/res/xml/config.xml
+
+# === Signing (JANGAN di-commit) ===
+android/keystore.properties
+*.jks
+*.keystore
+
+# === OS / editor ===
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# === Logs ===
+*.log
+npm-debug.log*
