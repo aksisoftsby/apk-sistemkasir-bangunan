@@ -53,7 +53,7 @@ export default function HistoryScreen() {
                       <span className="money money-sm">{formatRupiah(s.total)}</span>
                     </div>
                     <div className="row-between mt-1">
-                      <span className="small muted truncate">{s.customer_nama} · {formatDateTime(s.tanggal)}</span>
+                      <span className="small muted truncate">{s.customer_nama || t('common.generalCustomer')} · {formatDateTime(s.tanggal)}</span>
                       <span
                         className={
                           'badge ' +

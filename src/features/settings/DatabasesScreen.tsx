@@ -117,7 +117,7 @@ export default function DatabasesScreen() {
             <div className="card-title">{t('db.saveTitle')}</div>
             <div className="small muted mb-3">{t('db.saveSub')}</div>
             <div className="field">
-              <label>{t('db.saveTitle')}</label>
+              <label>{t('db.nameLabel')}</label>
               <input
                 className="input"
                 value={name}
@@ -141,18 +141,21 @@ export default function DatabasesScreen() {
                   <div key={r.name} className="list-row">
                     <div className="grow">
                       <div className="row" style={{ gap: 8, alignItems: 'center' }}>
-                        <span className="semibold truncate">{r.name}</span>
+                        <span className="semibold" style={{ wordBreak: 'break-all' }}>{r.name}</span>
                         {r.active ? <span className="badge badge-success">{t('db.active')}</span> : null}
                       </div>
                       <div className="small muted">
+                        {r.active ? t('db.inUse') + ' · ' : ''}
                         {formatBytes(r.size)}
                         {r.modified ? ' · ' + formatDateTime(r.modified) : ''}
                       </div>
                     </div>
                     <div className="row" style={{ gap: 8 }}>
-                      <button className="btn btn-sm btn-primary" disabled={busy} onClick={() => setLoadTarget(r.name)}>
-                        {t('db.load')}
-                      </button>
+                      {r.active ? null : (
+                        <button className="btn btn-sm btn-primary" disabled={busy} onClick={() => setLoadTarget(r.name)}>
+                          {t('db.load')}
+                        </button>
+                      )}
                       <button className="btn btn-sm" disabled={busy} onClick={() => void doShare(r.name)}>
                         {t('db.share')}
                       </button>

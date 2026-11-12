@@ -103,11 +103,11 @@ export default function PaymentScreen() {
         shift?.id ?? null,
       );
       cart.clear();
-      toast.success('Transaksi tersimpan');
+      toast.success(t('pay.saved'));
       nav('/pos/success/' + sale.id, { replace: true });
     } catch (e) {
       console.error(e);
-      toast.danger('Gagal menyimpan: ' + String(e));
+      toast.danger(t('common.failedSave') + String(e));
     } finally {
       setSaving(false);
     }
@@ -121,7 +121,7 @@ export default function PaymentScreen() {
           <div className="card center-text">
             <div className="small muted">{t('pay.totalBill')}</div>
             <div className="money money-xl money-primary mt-1">{formatRupiah(totals.total)}</div>
-            <div className="small muted mt-1">{t('pay.items', { n: totals.itemCount })}</div>
+            <div className="small muted mt-1">{t(totals.itemCount === 1 ? 'pay.itemOne' : 'pay.items', { n: totals.itemCount })}</div>
           </div>
 
           <div className="mt-4">

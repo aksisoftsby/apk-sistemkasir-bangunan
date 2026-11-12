@@ -20,11 +20,6 @@ export default function DeliveryScreen() {
   const lang = useLang(); void lang;
   const rows = useMemo(() => listDeliveries(), [ver]);
 
-  function next(status: string) {
-    const i = STATUS.indexOf(status as DeliveryStatus);
-    return STATUS[(i + 1) % STATUS.length];
-  }
-
   return (
     <div className="screen">
       <AppBar title={t('sj.title')} subtitle={t('sj.sub')} />
@@ -35,25 +30,33 @@ export default function DeliveryScreen() {
           ) : (
             <div className="list">
               {rows.map((d) => (
-                <div key={d.id} className="list-row">
+                <div key={d.id} className="list-row" style={{ alignItems: 'flex-start' }}>
                   <div className="avatar avatar-navy">
                     <IconTruck size={20} />
                   </div>
                   <div className="grow">
                     <div className="semibold">{d.no_nota}</div>
-                    <div className="small muted truncate">{d.customer_nama} · {formatDate(d.tanggal)}</div>
-                    <div className="small faint truncate">{d.alamat_kirim || t('sj.noAddress')}{d.sopir ? ' · ' + d.sopir : ''}</div>
+                    <div className="small muted">{d.customer_nama || t('common.generalCustomer')} · {formatDate(d.tanggal)}</div>
+                    <div className="small faint" style={{ whiteSpace: 'normal' }}>
+                      {d.alamat_kirim || t('sj.noAddress')}
+                      {d.sopir ? ' · ' + d.sopir : ''}
+                    </div>
+                    <div className="row wrap mt-2" style={{ gap: 6 }}>
+                      {STATUS.map((s) => (
+                        <button
+                          key={s}
+                          className={'chip' + (d.status === s ? ' active' : '')}
+                          onClick={() => {
+                            if (d.status === s) return;
+                            saveDelivery({ sale_id: d.sale_id, alamat_kirim: d.alamat_kirim, sopir: d.sopir, status: s });
+                            toast.success(t('sj.statusChanged', { status: t(STATUS_KEY[s]) }));
+                          }}
+                        >
+                          {t(STATUS_KEY[s])}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <button
-                    className={'badge ' + (d.status === 'DITERIMA' ? 'badge-success' : d.status === 'DALAM_PERJALANAN' ? 'badge-info' : 'badge-warning')}
-                    onClick={() => {
-                      const nextStatus = next(d.status);
-                      saveDelivery({ sale_id: d.sale_id, alamat_kirim: d.alamat_kirim, sopir: d.sopir, status: nextStatus });
-                      toast.success(t('sj.statusChanged', { status: t(STATUS_KEY[nextStatus]) }));
-                    }}
-                  >
-                    {t(STATUS_KEY[d.status as DeliveryStatus])}
-                  </button>
                 </div>
               ))}
             </div>

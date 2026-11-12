@@ -1,4 +1,4 @@
-# Kokoh App Bangunan — Release 1.1.1
+# Kokoh App Bangunan — Release 1.2.0
 
 Aplikasi kasir (POS) offline untuk toko bangunan. Semua data disimpan lokal di perangkat
 (SQLite via sql.js + IndexedDB/FileSystem) — tanpa server, tanpa internet.
@@ -7,11 +7,11 @@ Aplikasi kasir (POS) offline untuk toko bangunan. Semua data disimpan lokal di p
 
 | File | Ukuran | Keterangan |
 | --- | --- | --- |
-| `release/KokohAppBangunan-1.1.1-release.aab` | 5,5 MB | **Upload ke Google Play Console** (App Bundle) |
-| `release/KokohAppBangunan-1.1.1-release.apk` | 5,7 MB | Untuk instalasi langsung / testing di HP |
+| `release/KokohAppBangunan-1.2.0-release.aab` | 5,5 MB | **Upload ke Google Play Console** (App Bundle) |
+| `release/KokohAppBangunan-1.2.0-release.apk` | 5,8 MB | Untuk instalasi langsung / testing di HP |
 
 - **applicationId**: `id.aksisoft.kokoh`
-- **versionName**: `1.1.1` · **versionCode**: `4`
+- **versionName**: `1.2.0` · **versionCode**: `5`
 - **minSdk**: 24 (Android 7.0) · **targetSdk / compileSdk**: 36 (Android 16)
 - **Nama aplikasi**: Kokoh App Bangunan
 
@@ -21,44 +21,47 @@ Aplikasi kasir (POS) offline untuk toko bangunan. Semua data disimpan lokal di p
 ### SHA-256
 
 ```
-AAB  B3763FA15918E2FC9492E3362BA246F315469811C4573BC7635D2B98EF407CD5
-APK  3138015C779772F70D5FC55A3507E9070AB43704A5AE3161268EEB143E7A8CD8
+AAB  8ACAF35CE43B1E30DBE476552739246C821714631E639B1504459E54F27B87A1
+APK  D2DDA4EC425603537160FE4D490A1387336F57EFCB2BE80EBFB6AEB96405804B
 ```
 
-## Yang baru di 1.1.1
+## Yang baru di 1.2.0
 
-### Perbaikan
+Rilis ini berisi perbaikan bug prioritas tinggi dan penyempurnaan UI utama
+berdasarkan review desain independen.
 
-- **Versi aplikasi tampil benar** — layar *About* & footer Pengaturan kini membaca
-  versi dari satu konstanta (`src/lib/appversion.ts`), sebelumnya tertulis `1.0.0`.
-- **Screenshot README diperbarui** — 14 tangkapan layar UI English (default),
-  termasuk layar **Databases** yang baru; artefak tab bar di screenshot fullpage dihilangkan.
+### Perbaikan bug
 
-## Yang baru di 1.1.0
+- **Toast tidak lagi menutupi tombol aksi.** Notifikasi pindah ke atas layar
+  (di bawah app bar) sehingga tombol **Pay / Done & Save** selalu bisa ditekan.
+- **Tidak ada lagi teks Indonesia di UI English.** Toast "Transaksi tersimpan"
+  diganti `Sale saved`, dan fallback pelanggan "Umum" di riwayat/surat jalan
+  sekarang memakai `Walk-in customer` / `Pelanggan Umum`.
+- **Pluralisasi benar.** "1 item" (bukan "1 items"), "2 items".
+- **Kategori kosong tidak lagi menampilkan "Tanpa Kategori"** di UI English.
 
-### Dua Bahasa (English default + Bahasa Indonesia)
+### Perbaikan UI
 
-- **English** adalah bahasa default untuk instalasi baru; **Bahasa Indonesia**
-  bisa dipilih kapan saja.
-- Pindah bahasa: **More → Databases → Language** (English) atau
-  **Lainnya → Database → Bahasa** (Indonesia). Pilihan tersimpan di perangkat.
-- Semua layar (± 550 string), nota PDF, surat jalan, dan template WhatsApp
-  mengikuti bahasa aktif.
-- **Angka & tanggal mengikuti bahasa**:
-  - English: `1,250,000` · `2.5` · `Nov 12, 2026`
-  - Indonesia: `1.250.000` · `2,5` · `12 Nov 2026`
-
-### Manajer Database
-
-- **Simpan Database Saat Ini** di bawah nama bebas (mis. `stok-opname-nov`)
-  — tersimpan di `Documents/databases/` (Android) atau IndexedDB (browser).
-- **Daftar Database Tersimpan**: tap **Load** untuk beralih ke file lain
-  (salinan pengaman otomatis dibuat sebelum mengganti), **Share** untuk
-  mengirim via sistem share sheet (**Telegram, Google Drive, File Manager,
-  WhatsApp**, …), **Hapus** untuk membersihkan.
-- **Upload File Database**: impor file `.db` dari Download / WhatsApp / Drive,
-  lalu muat kapan saja.
-- File aktif terakhir ditandai badge **Active**.
+- **Katalog kasir lebih padat.** Banner besar diganti strip ringkasan 48 dp;
+  kartu produk menampilkan 8 produk per layar (sebelumnya 6). Ada **toggle
+  Grid / Daftar** — pilihan tersimpan di perangkat.
+- **Stok tampil dalam satuan jual + konversi dasar.** Contoh: `4 sak (200 kg)`,
+  `27.778 dus (40 m²)` — kasir tidak perlu menghitung konversi sendiri.
+  Berlaku di Kasir, Produk, dan Stok.
+- **Badge hanya untuk stok menipis/habis.** Badge "Safe"/"Aman" yang muncul di
+  semua baris dihapus.
+- **Tidak ada FAB yang menutupi konten / tombol "+" ganda.** Tombol tambah
+  dipindah ke app bar pada Produk, Stok, dan Pembelian.
+- **Surat Jalan bisa diubah statusnya langsung.** Tiga chip status
+  (Pending / On the way / Received) di tiap baris; alamat tampil penuh.
+- **Pengaturan dikelompokkan**: Toko, Operasional, Data & cadangan, Preferensi,
+  Tentang.
+- **Manajer Database lebih aman**: konfirmasi sebelum Load/Hapus, tombol Load
+  disembunyikan untuk file yang sedang aktif (badge **Active** + "Currently in
+  use"), dan nama file panjang tampil utuh.
+- **Laporan lebih jujur**: grafik satu balok diganti keterangan, "Cash Out Rp 0"
+  tidak lagi merah, dan Piutang/Nilai Stok diberi label **Current position**.
+- **Kontras diperbaiki** pada kartu gelap (teks hijau/keterangan).
 
 ## Build
 
@@ -74,10 +77,10 @@ cd android
 Verifikasi tanda tangan:
 
 ```powershell
-& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.1.1-release.aab
+& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.2.0-release.aab
 # → jar verified.
 
-& "E:\Android\LocalAndroid\Sdk\build-tools\<versi>\apksigner.bat" verify --print-certs release\KokohAppBangunan-1.1.1-release.apk
+& "E:\Android\LocalAndroid\Sdk\build-tools\<versi>\apksigner.bat" verify --print-certs release\KokohAppBangunan-1.2.0-release.apk
 # → CN=DoniMuslimin, OU=TukangDigital ...
 ```
 
@@ -96,3 +99,4 @@ Verifikasi tanda tangan:
 | 1.0.1 | 2 | Rilis awal: kasir lengkap, ikon/splash baru, penandatanganan tukangdigital |
 | 1.1.0 | 3 | Dua bahasa (EN default + ID), format angka/tanggal per bahasa, Manajer Database (simpan/muat/upload/bagikan) |
 | 1.1.1 | 4 | Versi tampil benar (About/footer) via konstanta `APP_VERSION`, screenshot README diperbarui (UI EN + layar Databases) |
+| 1.2.0 | 5 | P0 bugs (toast, string ID bocor, plural) + UI utama: katalog padat + Grid/Daftar, stok satuan jual, badge selektif, status surat jalan, grup Pengaturan, Database lebih aman, Laporan & kontras |

@@ -43,19 +43,19 @@ export default function ReportsScreen() {
           />
 
           <div className="card mt-3" style={{ background: 'var(--secondary)', borderColor: 'var(--secondary)' }}>
-            <div className="small" style={{ color: '#94a3b8' }}>{t('rp.omzet')}</div>
+            <div className="small" style={{ color: '#cbd5e1' }}>{t('rp.omzet')} · {t('rp.thisPeriod')}</div>
             <div className="money money-xl" style={{ color: '#fff' }}>{formatRupiah(summary.omzet)}</div>
             <div className="row mt-2" style={{ gap: 16 }}>
               <div>
-                <div className="tiny" style={{ color: '#94a3b8' }}>{t('rp.gross')}</div>
-                <div className="money money-sm" style={{ color: 'var(--success)' }}>{formatRupiah(summary.laba_kotor)}</div>
+                <div className="tiny" style={{ color: '#cbd5e1' }}>{t('rp.gross')}</div>
+                <div className="money money-sm" style={{ color: 'var(--success-light)' }}>{formatRupiah(summary.laba_kotor)}</div>
               </div>
               <div>
-                <div className="tiny" style={{ color: '#94a3b8' }}>{t('rp.trx')}</div>
+                <div className="tiny" style={{ color: '#cbd5e1' }}>{t('rp.trx')}</div>
                 <div className="money money-sm" style={{ color: '#fff' }}>{summary.transaksi}</div>
               </div>
               <div>
-                <div className="tiny" style={{ color: '#94a3b8' }}>{t('rp.items')}</div>
+                <div className="tiny" style={{ color: '#cbd5e1' }}>{t('rp.items')}</div>
                 <div className="money money-sm" style={{ color: '#fff' }}>{formatNumber(summary.item_terjual)}</div>
               </div>
             </div>
@@ -68,29 +68,36 @@ export default function ReportsScreen() {
             </div>
             <div className="kpi">
               <div className="kpi-label">{t('rp.cashOut')}</div>
-              <div className="kpi-value" style={{ color: 'var(--danger)' }}>{formatRupiah(cash.keluar)}</div>
+              <div className="kpi-value" style={{ color: cash.keluar > 0 ? 'var(--danger)' : 'var(--text)' }}>{formatRupiah(cash.keluar)}</div>
             </div>
             <div className="kpi">
               <div className="kpi-label">{t('rp.piutang')}</div>
-              <div className="kpi-value" style={{ color: 'var(--warning)' }}>{formatRupiah(piutang)}</div>
+              <div className="kpi-value" style={{ color: piutang > 0 ? 'var(--warning)' : 'var(--text)' }}>{formatRupiah(piutang)}</div>
+              <div className="tiny faint">{t('rp.current')}</div>
             </div>
             <div className="kpi">
               <div className="kpi-label">{t('rp.stockVal')}</div>
               <div className="kpi-value">{formatRupiah(Math.round(stock.total_nilai))}</div>
+              <div className="tiny faint">{t('rp.current')}</div>
             </div>
           </div>
 
-          {byDay.length > 0 ? (
-            <div className="card mt-3">
-              <div className="card-title">{t('rp.daily')}</div>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 120 }}>
+          <div className="card mt-3">
+            <div className="row-between">
+              <div className="card-title" style={{ margin: 0 }}>{t('rp.daily')}</div>
+              {byDay.length > 1 ? (
+                <div className="tiny faint">{t('rp.avg')}: {formatRupiah(Math.round(summary.omzet / byDay.length))}</div>
+              ) : null}
+            </div>
+            {byDay.length > 1 ? (
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 120, marginTop: 12 }}>
                 {byDay.slice(-14).map((d) => (
                   <div key={d.tanggal} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <div
                       style={{
                         width: '100%',
                         height: Math.max(4, (d.omzet / maxOmzet) * 100),
-                        background: 'var(--primary)',
+                        background: d.omzet > 0 ? 'var(--primary)' : 'var(--border-light)',
                         borderRadius: 4,
                       }}
                       title={formatRupiah(d.omzet)}
@@ -99,8 +106,10 @@ export default function ReportsScreen() {
                   </div>
                 ))}
               </div>
-            </div>
-          ) : null}
+            ) : (
+              <div className="small muted mt-2">{byDay.length === 1 ? t('rp.oneDay') : t('rp.noSales')}</div>
+            )}
+          </div>
 
           <div className="card mt-3">
             <div className="card-title">{t('rp.top')}</div>

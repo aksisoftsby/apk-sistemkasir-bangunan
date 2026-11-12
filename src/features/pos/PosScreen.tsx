@@ -10,12 +10,12 @@ import {
   listCustomers,
   listProducts,
 } from '../../lib/repo';
-import { formatNumber, formatQty, roundTo } from '../../lib/format';
+import { formatNumber, formatQty, formatStock, roundTo } from '../../lib/format';
 import { useCart, cartTotals } from '../../stores/cart';
 import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
-import { BottomSheet, EmptyState, HeroBanner, Money, NumberSheet } from '../../components/ui';
-import { IconClock, IconMinus, IconPlus, IconSearch, IconStar, IconUser } from '../../components/icons';
+import { BottomSheet, EmptyState, Money, NumberSheet } from '../../components/ui';
+import { IconClock, IconMinus, IconPlus, IconSearch, IconUser } from '../../components/icons';
 import { t, useLang } from '../../lib/locale';
 import type { ProductView } from '../../lib/types';
 import CartSheet from './CartSheet';
@@ -32,6 +32,9 @@ export default function PosScreen() {
   const [cartOpen, setCartOpen] = useState(false);
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerSearch, setCustomerSearch] = useState('');
+  const [view, setView] = useState<'grid' | 'list'>(() =>
+    localStorage.getItem('kokoh_pos_view_v1') === 'list' ? 'list' : 'grid',
+  );
   const lang = useLang(); void lang;
 
   const categories = useMemo(() => listCategories(), [ver]);
@@ -58,6 +61,11 @@ export default function PosScreen() {
     return getPriceFor(def.id, tierId);
   }
 
+  function changeView(v: 'grid' | 'list') {
+    setView(v);
+    localStorage.setItem('kokoh_pos_view_v1', v);
+  }
+
   return (
     <div className="screen">
       <div className="appbar">
@@ -75,14 +83,24 @@ export default function PosScreen() {
       <div className="screen-body">
         <div className="page-tight" style={{ paddingBottom: cart.items.length ? 150 : 80 }}>
           <div style={{ padding: '12px 16px 0' }}>
-            <div className="search-wrap">
-              <IconSearch size={20} className="search-icon" />
-              <input
-                className="search-input"
-                placeholder={t('pos.searchPh')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="row" style={{ gap: 8 }}>
+              <div className="search-wrap grow">
+                <IconSearch size={20} className="search-icon" />
+                <input
+                  className="search-input"
+                  placeholder={t('pos.searchPh')}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="view-toggle" role="group" aria-label={t('pos.grid')}>
+                <button className={view === 'grid' ? 'active' : ''} onClick={() => changeView('grid')}>
+                  {t('pos.grid')}
+                </button>
+                <button className={view === 'list' ? 'active' : ''} onClick={() => changeView('list')}>
+                  {t('pos.list')}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -98,12 +116,10 @@ export default function PosScreen() {
           </div>
 
           {!search && !category ? (
-            <div style={{ padding: '0 16px 12px' }}>
-              <HeroBanner
-                image="./assets/hero-banner.webp"
-                title={t('pos.heroTitle')}
-                subtitle={t('pos.heroSub')}
-              />
+            <div className="catalog-strip">
+              <IconSearch size={16} />
+              <span className="grow">{t('pos.heroSub')}</span>
+              <span>{t('pos.products', { n: products.length })}</span>
             </div>
           ) : null}
 
@@ -111,27 +127,9 @@ export default function PosScreen() {
             {products.length === 0 ? (
               <EmptyState title={t('pos.notFound')} message={t('pos.notFoundSub')} image="./assets/onboarding.webp" />
             ) : (
-              <div className="product-grid">
+              <div className={view === 'grid' ? 'product-grid' : 'product-list'}>
                 {products.map((p) => (
-                  <div key={p.id} className={'product-card' + (p.stok_dasar <= 0 ? ' out' : '')} onClick={() => setSheetProduct(p)}>
-                    {p.favorit ? (
-                      <span className="tag-favorit" style={{ color: 'var(--accent-yellow)' }}>
-                        <IconStar size={14} />
-                      </span>
-                    ) : null}
-                    <div>
-                      <div className="product-name">{p.nama}</div>
-                      <div className="tiny faint mt-1">{p.sku || p.barcode || p.kategori_nama}</div>
-                    </div>
-                    <div>
-                      <div className="money money-sm money-primary">{'Rp ' + formatNumber(priceOf(p))}</div>
-                      <div className="tiny mt-1">
-                        <span className={p.stok_dasar <= p.stok_min ? 'badge badge-danger' : 'badge badge-neutral'}>
-                          {t('pos.stock')} {formatQty(p.stok_dasar)} {p.base_unit_simbol}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  <ProductCard key={p.id} p={p} view={view} price={priceOf(p)} onOpen={() => setSheetProduct(p)} />
                 ))}
               </div>
             )}
@@ -143,7 +141,7 @@ export default function PosScreen() {
         <div className="sticky-footer" style={{ bottom: 60 }}>
           <div className="row-between mb-2">
             <div className="row" style={{ gap: 8 }}>
-              <span className="badge badge-primary">{cart.items.length} {t('pos.item')}</span>
+              <span className="badge badge-primary">{cart.items.length} {t(cart.items.length === 1 ? 'pos.item' : 'pos.items')}</span>
               {cart.customer_nama ? (
                 <span className="badge badge-info">
                   <IconUser size={12} /> {cart.customer_nama}
@@ -217,6 +215,49 @@ export default function PosScreen() {
           ))}
         </div>
       </BottomSheet>
+    </div>
+  );
+}
+
+function ProductCard({
+  p,
+  view,
+  price,
+  onOpen,
+}: {
+  p: ProductView;
+  view: 'grid' | 'list';
+  price: number;
+  onOpen: () => void;
+}) {
+  const out = p.stok_dasar <= 0;
+  const low = !out && p.stok_dasar <= p.stok_min;
+  const stock = formatStock(p);
+
+  return (
+    <div className={'product-card' + (out ? ' out' : '')} onClick={onOpen}>
+      <div className="pc-main">
+        <div className="product-name">{p.nama}</div>
+        <div className="tiny faint mt-1">{p.sku || p.barcode || p.kategori_nama}</div>
+        {view === 'list' ? <div className="tiny muted mt-1">{stock}</div> : null}
+      </div>
+      <div className="pc-side">
+        <div className="money money-sm money-primary">{'Rp ' + formatNumber(price)}</div>
+        {view === 'grid' ? (
+          <div className="tiny mt-1">
+            <span className="faint">{stock}</span>
+            {low || out ? (
+              <span className={'badge ' + (out ? 'badge-danger' : 'badge-warning')} style={{ marginLeft: 6 }}>
+                {out ? t('pos.noStock') : t('pos.lowStock')}
+              </span>
+            ) : null}
+          </div>
+        ) : out ? (
+          <span className="badge badge-danger">{t('pos.noStock')}</span>
+        ) : low ? (
+          <span className="badge badge-warning">{t('pos.lowStock')}</span>
+        ) : null}
+      </div>
     </div>
   );
 }

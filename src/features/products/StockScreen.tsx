@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react';
 import { notifyChange, useDbVersion } from '../../lib/db';
 import { applyStockMovement, getProductUnits, listProducts } from '../../lib/repo';
-import { formatNumber, formatQty, parseQtyInput } from '../../lib/format';
+import { formatNumber, formatQty, formatStock, parseQtyInput } from '../../lib/format';
 import { lowStockProducts, stockMutation, stockValue } from '../../lib/report';
 import { useSession } from '../../stores/session';
 import { toast } from '../../stores/toast';
 import { AppBar, BottomSheet, EmptyState, Segmented } from '../../components/ui';
 import { IconSearch } from '../../components/icons';
-import { IconPlus } from '../../components/icons';
 import { t, useLang } from '../../lib/locale';
 
 export default function StockScreen() {
@@ -101,12 +100,14 @@ export default function StockScreen() {
                   <div className="grow">
                     <div className="semibold truncate">{p.nama}</div>
                     <div className="small muted">
-                      {t('pos.stock')} {formatQty(p.stok_dasar)} {p.base_unit_simbol} · {t('st.min')} {formatQty(p.stok_min)}
+                      {formatStock(p)} · {t('st.min')} {formatQty(p.stok_min)} {p.base_unit_simbol}
                     </div>
                   </div>
-                  <span className={'badge ' + (p.stok_dasar <= p.stok_min ? 'badge-danger' : 'badge-success')}>
-                    {p.stok_dasar <= p.stok_min ? t('prod.low') : t('st.safe')}
-                  </span>
+                  {p.stok_dasar <= p.stok_min ? (
+                    <span className={'badge ' + (p.stok_dasar <= 0 ? 'badge-danger' : 'badge-warning')}>
+                      {p.stok_dasar <= 0 ? t('pos.noStock') : t('prod.low')}
+                    </span>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -175,23 +176,6 @@ export default function StockScreen() {
           </div>
         ) : null}
       </BottomSheet>
-
-      <button
-        className="btn btn-primary btn-icon-lg"
-        style={{ position: 'fixed', right: 16, bottom: 80, width: 56, height: 56, borderRadius: 16, boxShadow: 'var(--shadow-md)' }}
-        onClick={() => {
-          const first = products[0];
-          if (first) {
-            setSelected(first.id);
-            setTipe('MASUK');
-            setQtyText('');
-            setCatatan('');
-          }
-        }}
-        aria-label={t('st.add')}
-      >
-        <IconPlus size={26} />
-      </button>
     </div>
   );
 }

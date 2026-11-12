@@ -1,4 +1,5 @@
-import { getLang } from './locale';
+import { getLang, t } from './locale';
+import type { ProductView } from './types';
 
 function numLocale(): string {
   return getLang() === 'id' ? 'id-ID' : 'en-US';
@@ -114,6 +115,20 @@ export function daysLate(jatuhTempo: string | null): number {
   const b = new Date(jatuhTempo);
   const diff = Math.floor((a.getTime() - b.getTime()) / 86400000);
   return diff > 0 ? diff : 0;
+}
+
+/** Stock in the sell unit plus the base-unit equivalent, e.g. "4 sak (200 kg)". */
+export function formatStock(p: ProductView): string {
+  const baseQty = formatQty(p.stok_dasar);
+  if (p.sell_konversi && p.sell_konversi !== 1 && p.sell_unit_simbol) {
+    return t('pos.sellUnit', {
+      qty: formatQty(p.stok_dasar / p.sell_konversi),
+      unit: p.sell_unit_simbol,
+      base: baseQty,
+      baseUnit: p.base_unit_simbol,
+    });
+  }
+  return `${baseQty} ${p.base_unit_simbol}`.trim();
 }
 
 /** Initials for avatar */

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDbVersion } from '../../lib/db';
 import { listCategories, listProducts, toggleFavorit } from '../../lib/repo';
-import { formatNumber, formatQty } from '../../lib/format';
+import { formatNumber, formatStock } from '../../lib/format';
 import { AppBar, EmptyState } from '../../components/ui';
 import { IconPlus, IconSearch, IconStar } from '../../components/icons';
 import { t, useLang } from '../../lib/locale';
@@ -72,7 +72,7 @@ export default function ProductListScreen() {
                     </div>
                     <div className="small muted">{p.sku || p.barcode || '-'} · {p.kategori_nama}</div>
                     <div className="row mt-1" style={{ gap: 8 }}>
-                      <span className="small">{t('pos.stock')} {formatQty(p.stok_dasar)} {p.base_unit_simbol}</span>
+                      <span className="small">{formatStock(p)}</span>
                       <span className="small faint">{t('pf.hpp', { unit: p.base_unit_simbol })} {formatNumber(p.hpp)}</span>
                     </div>
                   </div>
@@ -93,15 +93,6 @@ export default function ProductListScreen() {
           )}
         </div>
       </div>
-
-      <button
-        className="btn btn-primary btn-icon-lg"
-        style={{ position: 'fixed', right: 16, bottom: 80, width: 56, height: 56, borderRadius: 16, boxShadow: 'var(--shadow-md)' }}
-        onClick={() => nav('/products/new')}
-        aria-label={t('prod.addProduct')}
-      >
-        <IconPlus size={26} />
-      </button>
     </div>
   );
 }

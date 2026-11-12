@@ -130,7 +130,7 @@ export default function CustomerListScreen() {
                     <div key={r.sale_id} className="list-row">
                       <div className="grow" onClick={() => nav('/pos/history/' + r.sale_id)}>
                         <div className="row-between">
-                          <span className="semibold truncate">{r.customer_nama}</span>
+                          <span className="semibold truncate">{r.customer_nama || t('common.generalCustomer')}</span>
                           <span className="money money-sm money-danger">{formatRupiah(r.sisa)}</span>
                         </div>
                         <div className="small muted">{r.no_nota}{r.proyek ? ' · ' + r.proyek : ''}</div>

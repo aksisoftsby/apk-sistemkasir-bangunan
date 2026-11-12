@@ -10,7 +10,7 @@ Dua bahasa (English default + Indonesia) · Stok multi-satuan · HPP per satuan 
 
 [![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)](#)
 [![Target SDK](https://img.shields.io/badge/targetSdk-36%20(Android%2016)-blue)](#)
-[![Versi](https://img.shields.io/badge/versi-1.1.1%20(build%204)-orange)](#)
+[![Versi](https://img.shields.io/badge/versi-1.2.0%20(build%205)-orange)](#)
 [![Offline](https://img.shields.io/badge/100%25-offline-success)](#)
 
 </div>
@@ -53,7 +53,7 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 | --- | --- |
 | **Nama aplikasi** | Kokoh App Bangunan |
 | **Package / applicationId** | `id.aksisoft.kokoh` |
-| **Versi** | `1.1.1` (versionCode `4`) |
+| **Versi** | `1.2.0` (versionCode `5`) |
 | **minSdk** | 24 — Android 7.0 Nougat |
 | **targetSdk / compileSdk** | 36 — Android 16 |
 | **Ukuran terpasang** | ± 5,8 MB (APK universal) |
@@ -68,6 +68,9 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 ### 2.1 Kasir (POS)
 
 - Pencarian produk berdasarkan **nama, SKU, atau barcode**; filter per kategori dan produk favorit.
+- Katalog dua tampilan: **Grid** (kartu) atau **Daftar** (baris padat) — pilihan tersimpan di perangkat.
+- Stok produk ditampilkan dalam **satuan jual + konversi dasar** (mis. `4 sak (200 kg)`),
+  dan badge hanya muncul saat stok menipis/habis.
 - Keranjang dengan ubah qty, ganti satuan jual (sak ↔ kg, dus ↔ m², pak ↔ buah),
   ubah harga satuan per item (nego), serta harga otomatis mengikuti **tier harga**
   pelanggan (Eceran / Grosir / Kontraktor).
@@ -78,7 +81,7 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 - Nomor nota otomatis: `INV-YYYYMMDD-0001`.
 - Nota PDF (A5) bisa dibagikan / dicetak; tombol **Kirim ke WhatsApp** membuat pesan tagihan siap kirim.
 - **Surat jalan** dengan alamat kirim + nama sopir, dan status pengiriman
-  (Belum dikirim → Dalam perjalanan → Diterima).
+  (Belum dikirim → Dalam perjalanan → Diterima) yang bisa diubah langsung dari daftar.
 - Retur barang (opsional mengembalikan stok) dan pembatalan transaksi (stok dikembalikan, tercatat di audit log).
 
 ### 2.2 Produk & Stok
@@ -140,28 +143,30 @@ online, tidak ada langganan — aplikasi tetap berjalan penuh tanpa sinyal.
 
 ## 3. Tangkapan Layar
 
-| Kasir | Keranjang | Pembayaran (Tempo) |
+| Kasir — Grid | Kasir — Daftar | Keranjang |
 | :---: | :---: | :---: |
-| ![Kasir](docs/screenshots/pos.webp) | ![Keranjang](docs/screenshots/cart.webp) | ![Pembayaran](docs/screenshots/payment.webp) |
+| ![Kasir Grid](docs/screenshots/pos.webp) | ![Kasir Daftar](docs/screenshots/pos-list.webp) | ![Keranjang](docs/screenshots/cart.webp) |
 
-| Transaksi Berhasil | Detail Transaksi | Produk |
+| Pembayaran (Tempo) | Transaksi Berhasil | Detail Transaksi |
 | :---: | :---: | :---: |
-| ![Sukses](docs/screenshots/success.webp) | ![Detail](docs/screenshots/detail.webp) | ![Produk](docs/screenshots/products.webp) |
+| ![Pembayaran](docs/screenshots/payment.webp) | ![Sukses](docs/screenshots/success.webp) | ![Detail](docs/screenshots/detail.webp) |
 
-| Stok | Piutang | Pembelian |
+| Produk | Stok | Piutang |
 | :---: | :---: | :---: |
-| ![Stok](docs/screenshots/stock.webp) | ![Piutang](docs/screenshots/customers.webp) | ![Pembelian](docs/screenshots/purchase.webp) |
+| ![Produk](docs/screenshots/products.webp) | ![Stok](docs/screenshots/stock.webp) | ![Piutang](docs/screenshots/customers.webp) |
 
-| Kas & Shift | Laporan | Surat Jalan |
+| Pembelian | Kas & Shift | Laporan |
 | :---: | :---: | :---: |
-| ![Shift](docs/screenshots/shift.webp) | ![Laporan](docs/screenshots/reports.webp) | ![Surat Jalan](docs/screenshots/delivery.webp) |
+| ![Pembelian](docs/screenshots/purchase.webp) | ![Shift](docs/screenshots/shift.webp) | ![Laporan](docs/screenshots/reports.webp) |
 
-| Pengaturan | Database |
-| :---: | :---: |
-| ![Pengaturan](docs/screenshots/settings.webp) | ![Database](docs/screenshots/databases.webp) |
+| Surat Jalan | Pengaturan | Database |
+| :---: | :---: | :---: |
+| ![Surat Jalan](docs/screenshots/delivery.webp) | ![Pengaturan](docs/screenshots/settings.webp) | ![Database](docs/screenshots/databases.webp) |
 
-> Tangkapan layar memakai UI **English (default)**. Pilih
-> *Bahasa Indonesia* untuk antarmuka berbahasa Indonesia.
+> Tangkapan layar memakai UI **English (default)** versi 1.2.0. Pilih
+> *Bahasa Indonesia* untuk antarmuka berbahasa Indonesia. Katalog kasir punya
+> dua tampilan: **Grid** (kartu) dan **Daftar** (baris padat) — pilihan tersimpan
+> di perangkat.
 
 ---
 
@@ -299,7 +304,7 @@ Verifikasi tanda tangan:
 & "$env:JAVA_HOME\bin\java.exe" -jar "$env:ANDROID_HOME\build-tools\36.0.0\lib\apksigner.jar" `
   verify --verbose --print-certs android\app\build\outputs\apk\release\app-release.apk
 
-& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.1.1-release.aab
+& "$env:JAVA_HOME\bin\jarsigner.exe" -verify release\KokohAppBangunan-1.2.0-release.aab
 ```
 
 ### 7.4 Naikkan versi setiap rilis
@@ -308,7 +313,7 @@ Verifikasi tanda tangan:
 
 ```gradle
 versionCode 5          // WAJIB naik setiap upload ke Play (tidak boleh sama/mundur)
-versionName "1.1.2"
+versionName "1.2.0"
 ```
 
 ### 7.5 Ikon & splash
@@ -328,7 +333,7 @@ Panduan lengkap (keystore, Play Console, kebijakan target API 36):
 ```
 apk-sistemkasir-bangunan/
 ├── README.md                  # dokumen ini
-├── RELEASE.md                 # catatan rilis 1.1.1 (hash, sertifikat, ukuran)
+├── RELEASE.md                 # catatan rilis 1.2.0 (hash, sertifikat, ukuran)
 ├── package.json
 ├── vite.config.ts             # base './' agar aman di WebView
 ├── capacitor.config.ts        # appId id.aksisoft.kokoh, webDir dist
@@ -360,8 +365,8 @@ apk-sistemkasir-bangunan/
 │   └── gen-screenshots.cjs    # kompres tangkapan layar jadi WebP
 │
 ├── release/                   # artefak siap edar
-│   ├── KokohAppBangunan-1.1.1-release.aab
-│   └── KokohAppBangunan-1.1.1-release.apk
+│   ├── KokohAppBangunan-1.2.0-release.aab
+│   └── KokohAppBangunan-1.2.0-release.apk
 │
 ├── src/
 │   ├── main.tsx               # entry React
@@ -616,12 +621,12 @@ npm run lint    # oxlint
 
 ## 16. Rilis & Lisensi
 
-**Artefak rilis 1.1.1**
+**Artefak rilis 1.2.0**
 
 | File | Ukuran | SHA-256 |
 | --- | --- | --- |
-| `release/KokohAppBangunan-1.1.1-release.aab` | 5,5 MB | `B3763FA15918E2FC9492E3362BA246F315469811C4573BC7635D2B98EF407CD5` |
-| `release/KokohAppBangunan-1.1.1-release.apk` | 5,7 MB | `3138015C779772F70D5FC55A3507E9070AB43704A5AE3161268EEB143E7A8CD8` |
+| `release/KokohAppBangunan-1.2.0-release.aab` | 5,5 MB | `8ACAF35CE43B1E30DBE476552739246C821714631E639B1504459E54F27B87A1` |
+| `release/KokohAppBangunan-1.2.0-release.apk` | 5,8 MB | `D2DDA4EC425603537160FE4D490A1387336F57EFCB2BE80EBFB6AEB96405804B` |
 
 - Ditandatangani `CN=DoniMuslimin, OU=TukangDigital, O=TukangDigital` (RSA, berlaku s/d 2044).
 - Detail sertifikat, hash, dan langkah rilis: **[RELEASE.md](RELEASE.md)**.

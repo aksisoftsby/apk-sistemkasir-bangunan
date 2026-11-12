@@ -572,7 +572,7 @@ h1, h2, h3, h4 {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 90px;
+  top: calc(env(safe-area-inset-top, 0px) + 68px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -589,8 +589,13 @@ h1, h2, h3, h4 {
   font-size: 14px;
   font-weight: 600;
   box-shadow: var(--shadow-md);
-  animation: pop 0.16s ease;
+  animation: dropIn 0.18s ease;
   max-width: 100%;
+  text-align: center;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .toast-success { background: var(--success); }
 .toast-danger { background: var(--danger); }
@@ -682,6 +687,63 @@ h1, h2, h3, h4 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--sp-2);
+}
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.product-list .product-card {
+  min-height: 0;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 10px var(--sp-3);
+  gap: var(--sp-3);
+}
+.product-list .product-card .pc-main {
+  flex: 1;
+  min-width: 0;
+}
+.product-list .product-card .pc-side {
+  text-align: right;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.product-list .product-name {
+  -webkit-line-clamp: 1;
+  font-size: 15px;
+}
+.catalog-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0 var(--sp-4) var(--sp-3);
+  padding: 10px var(--sp-3);
+  background: var(--primary-faint);
+  border: 1px solid var(--primary-soft);
+  border-radius: var(--r-md);
+  color: var(--primary-pressed);
+  font-size: 13px;
+  font-weight: 600;
+}
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.view-toggle button {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.view-toggle button.active {
+  background: var(--secondary);
+  color: #fff;
 }
 .product-card {
   background: var(--surface);

@@ -89,15 +89,6 @@ export default function PurchaseScreen() {
           )}
         </div>
       </div>
-
-      <button
-        className="btn btn-primary btn-icon-lg"
-        style={{ position: 'fixed', right: 16, bottom: 80, width: 56, height: 56, borderRadius: 16, boxShadow: 'var(--shadow-md)' }}
-        onClick={() => nav('/purchase/new')}
-        aria-label={t('po.newSub')}
-      >
-        <IconPlus size={26} />
-      </button>
     </div>
   );
 }

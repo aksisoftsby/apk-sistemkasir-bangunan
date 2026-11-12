@@ -8,6 +8,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const picks = [
   ['pos', `${T}/pos.png`],
+  ['pos-list', `${T}/pos-list.png`],
   ['cart', `${T}/cart.png`],
   ['payment', `${T}/payment.png`],
   ['success', `${T}/success.png`],

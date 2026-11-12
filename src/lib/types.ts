@@ -276,6 +276,8 @@ export interface ProductView extends Product {
   kategori_nama: string;
   base_unit_nama: string;
   base_unit_simbol: string;
+  sell_unit_simbol: string;
+  sell_konversi: number;
   stok_dasar: number;
 }
 

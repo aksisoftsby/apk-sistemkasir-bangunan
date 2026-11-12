@@ -21,10 +21,13 @@
 
   --success: #15803d;
   --success-bg: #dcfce7;
+  --success-light: #4ade80;
   --warning: #b45309;
   --warning-bg: #fef3c7;
+  --warning-light: #fbbf24;
   --danger: #b91c1c;
   --danger-bg: #fee2e2;
+  --danger-light: #fca5a5;
   --info: #1d4ed8;
   --info-bg: #dbeafe;
   --accent-yellow: #facc15;

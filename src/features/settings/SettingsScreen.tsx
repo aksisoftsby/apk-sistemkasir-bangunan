@@ -77,20 +77,33 @@ export default function SettingsScreen() {
             </div>
           </div>
 
-          <div className="list mt-4">
+          <div className="label mt-4 mb-2">{t('set.groupStore')}</div>
+          <div className="list">
             <Row icon={<IconSettings size={20} />} title={t('set.store')} subtitle={t('set.storeSub')} onClick={() => nav('/settings/store')} />
             <Row icon={<IconUsers size={20} />} title={t('set.users')} subtitle={t('set.usersSub')} onClick={() => nav('/settings/users')} />
-            <Row icon={<IconDownload size={20} />} title={t('set.backup')} subtitle={t('set.backupSub')} onClick={() => nav('/settings/backup')} />
-            <Row icon={<span style={{ fontSize: 18 }}>🗄️</span>} title={t('set.databases')} subtitle={t('set.databasesSub')} onClick={() => nav('/settings/databases')} />
-            <Row icon={<IconWallet size={20} />} title={t('set.cashShift')} subtitle={t('set.cashShiftSub')} onClick={() => nav('/shift')} />
           </div>
 
-          <div className="list mt-3">
+          <div className="label mt-4 mb-2">{t('set.groupOps')}</div>
+          <div className="list">
+            <Row icon={<IconWallet size={20} />} title={t('set.cashShift')} subtitle={t('set.cashShiftSub')} onClick={() => nav('/shift')} />
             <Row icon={<IconBox size={20} />} title={t('set.purchase')} subtitle={t('set.purchaseSub')} onClick={() => nav('/purchase')} />
             <Row icon={<IconTruck size={20} />} title={t('set.delivery')} subtitle={t('set.deliverySub')} onClick={() => nav('/pos/delivery')} />
           </div>
 
-          <div className="list mt-3">
+          <div className="label mt-4 mb-2">{t('set.groupData')}</div>
+          <div className="list">
+            <Row icon={<IconDownload size={20} />} title={t('set.backup')} subtitle={t('set.backupSub')} onClick={() => nav('/settings/backup')} />
+            <Row icon={<span style={{ fontSize: 18 }}>🗄️</span>} title={t('set.databases')} subtitle={t('set.databasesSub')} onClick={() => nav('/settings/databases')} />
+            <Row
+              icon={<span style={{ fontSize: 18 }}>💾</span>}
+              title={t('set.autoBackup')}
+              subtitle={t('set.autoBackupSub')}
+              right={<Switch on={autoBackup} onChange={(v) => { setAutoBackup(v); setSetting('auto_backup', v ? '1' : '0'); }} />}
+            />
+          </div>
+
+          <div className="label mt-4 mb-2">{t('set.groupPrefs')}</div>
+          <div className="list">
             <Row
               icon={<span style={{ fontSize: 18 }}>🌐</span>}
               title={t('set.language')}
@@ -123,15 +136,10 @@ export default function SettingsScreen() {
               title={t('set.haptic')}
               right={<Switch on={haptic} onChange={(v) => { setHaptic(v); setSetting('haptic', v ? '1' : '0'); }} />}
             />
-            <Row
-              icon={<span style={{ fontSize: 18 }}>💾</span>}
-              title={t('set.autoBackup')}
-              subtitle={t('set.autoBackupSub')}
-              right={<Switch on={autoBackup} onChange={(v) => { setAutoBackup(v); setSetting('auto_backup', v ? '1' : '0'); }} />}
-            />
           </div>
 
-          <div className="list mt-3">
+          <div className="label mt-4 mb-2">{t('set.groupAbout')}</div>
+          <div className="list">
             <Row icon={<span style={{ fontSize: 18 }}>ℹ️</span>} title={t('set.about')} subtitle={t('set.version', { v: APP_VERSION })} onClick={() => setAboutOpen(true)} />
             <Row
               icon={<IconLogout size={20} />}

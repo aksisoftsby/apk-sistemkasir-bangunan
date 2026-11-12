@@ -92,8 +92,12 @@ export function listProducts(f: ProductListFilters = {}): ProductView[] {
   }
   if (f.favoritOnly) where.push('p.favorit = 1');
   const rows = all<ProductView>(
-    `SELECT p.*, COALESCE(c.nama, 'Tanpa Kategori') AS kategori_nama,
+    `SELECT p.*, COALESCE(c.nama, '') AS kategori_nama,
             COALESCE(u.nama, '') AS base_unit_nama, COALESCE(u.simbol, '') AS base_unit_simbol,
+            COALESCE((SELECT u2.simbol FROM product_units pu2 JOIN units u2 ON u2.id = pu2.unit_id
+                      WHERE pu2.product_id = p.id AND pu2.is_default_jual = 1 LIMIT 1), u.simbol, '') AS sell_unit_simbol,
+            COALESCE((SELECT pu2.konversi FROM product_units pu2
+                      WHERE pu2.product_id = p.id AND pu2.is_default_jual = 1 LIMIT 1), 1) AS sell_konversi,
             COALESCE(sb.qty_dasar, 0) AS stok_dasar
      FROM products p
      LEFT JOIN categories c ON c.id = p.category_id
@@ -111,8 +115,12 @@ export function listProducts(f: ProductListFilters = {}): ProductView[] {
 
 export function getProduct(id: string): ProductView | null {
   return get<ProductView>(
-    `SELECT p.*, COALESCE(c.nama, 'Tanpa Kategori') AS kategori_nama,
+    `SELECT p.*, COALESCE(c.nama, '') AS kategori_nama,
             COALESCE(u.nama, '') AS base_unit_nama, COALESCE(u.simbol, '') AS base_unit_simbol,
+            COALESCE((SELECT u2.simbol FROM product_units pu2 JOIN units u2 ON u2.id = pu2.unit_id
+                      WHERE pu2.product_id = p.id AND pu2.is_default_jual = 1 LIMIT 1), u.simbol, '') AS sell_unit_simbol,
+            COALESCE((SELECT pu2.konversi FROM product_units pu2
+                      WHERE pu2.product_id = p.id AND pu2.is_default_jual = 1 LIMIT 1), 1) AS sell_konversi,
             COALESCE(sb.qty_dasar, 0) AS stok_dasar
      FROM products p
      LEFT JOIN categories c ON c.id = p.category_id
@@ -320,7 +328,7 @@ export function listReceivables(customerId?: string): ReceivableRow[] {
   }
   return all<ReceivableRow>(
     `SELECT s.id AS sale_id, s.no_nota, s.tanggal, s.customer_id,
-            COALESCE(c.nama, 'Umum') AS customer_nama, COALESCE(c.telp, '') AS customer_telp,
+            COALESCE(c.nama, '') AS customer_nama, COALESCE(c.telp, '') AS customer_telp,
             s.total, s.total_bayar, s.sisa, s.jatuh_tempo, s.status, s.proyek
      FROM sales s LEFT JOIN customers c ON c.id = s.customer_id
      WHERE ${where}
@@ -494,7 +502,7 @@ export function listSales(opts: { from?: string; to?: string; search?: string; s
   }
   params.push(opts.limit ?? 100);
   return all<SaleView>(
-    `SELECT s.*, COALESCE(c.nama, 'Umum') AS customer_nama, COALESCE(u.nama, '-') AS kasir_nama,
+    `SELECT s.*, COALESCE(c.nama, '') AS customer_nama, COALESCE(u.nama, '-') AS kasir_nama,
             (SELECT COUNT(*) FROM sale_items si WHERE si.sale_id = s.id) AS item_count
      FROM sales s
      LEFT JOIN customers c ON c.id = s.customer_id
@@ -615,7 +623,7 @@ export function saveDelivery(d: { sale_id: string; alamat_kirim: string; sopir: 
 
 export function listDeliveries(): (Delivery & { no_nota: string; customer_nama: string })[] {
   return all(
-    `SELECT d.*, s.no_nota, COALESCE(c.nama, 'Umum') AS customer_nama
+    `SELECT d.*, s.no_nota, COALESCE(c.nama, '') AS customer_nama
      FROM deliveries d JOIN sales s ON s.id = d.sale_id
      LEFT JOIN customers c ON c.id = s.customer_id
      WHERE s.deleted_at IS NULL ORDER BY d.tanggal DESC`,
