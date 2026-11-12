@@ -15,6 +15,8 @@ Dua bahasa (English default + Indonesia) · Stok multi-satuan · HPP per satuan 
 
 </div>
 
+📘 **Tutorial lengkap — semua layar, tombol, dan alur navigasi: [tutorial.md](tutorial.md)**
+
 ---
 
 ## Daftar Isi
@@ -562,7 +564,8 @@ createSale({ /* … */ }, userId, shiftId);         // stok & kas ikut ter-updat
 ## 13. Panduan Pemakaian
 
 Panduan harian (buka toko → jualan → tutup kas) ada di
-**[docs/USER-GUIDE.md](docs/USER-GUIDE.md)**. Ringkasnya:
+**[docs/USER-GUIDE.md](docs/USER-GUIDE.md)**. Untuk panduan **selengkapnya — setiap layar,
+setiap tombol, dan setiap alur navigasi** — lihat **[tutorial.md](tutorial.md)**. Ringkasnya:
 
 1. **Pagi** — buka menu **Lainnya → Kas & Shift → Buka Kas**, isi modal laci.
 2. **Jualan** — tab **Kasir** → cari produk → pilih satuan & qty → **Bayar** →
